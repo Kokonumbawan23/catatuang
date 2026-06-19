@@ -10,6 +10,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader \
+    && php artisan key:generate
 
 CMD php artisan serve --host=0.0.0.0 --port=$PORT
