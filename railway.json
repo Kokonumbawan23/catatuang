@@ -1,8 +1,8 @@
 {
   "$schema": "https://railway.app/schema.json",
   "build": {
-    "builder": "nixpacks",
-    "buildCommand": "rm -rf vendor/composer && composer install --no-dev --no-progress && composer dump-autoload",
+    "builder": "railpack",
+    "buildCommand": "php -v && rm -rf vendor/composer && composer install --no-dev --no-progress && composer dump-autoload",
     "startCommand": "php artisan serve --port=$PORT"
   },
   "deploy": {
