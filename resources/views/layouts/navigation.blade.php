@@ -15,8 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('expenses.index')" :active="request()->routeIs('expenses.*')">
-                        {{ __('Pengeluaran') }}
+                    <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                        {{ __('Transaksi') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')">
+                        {{ __('Dompet') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -73,8 +76,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('expenses.index')" :active="request()->routeIs('expenses.*')">
-                {{ __('Pengeluaran') }}
+            <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                {{ __('Transaksi') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')">
+                {{ __('Dompet') }}
             </x-responsive-nav-link>
         </div>
 

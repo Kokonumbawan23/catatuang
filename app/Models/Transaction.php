@@ -6,22 +6,36 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Expense extends Model
+class Transaction extends Model
 {
     use HasFactory;
 
-    #[Fillable(['user_id', 'category_id', 'amount', 'description', 'spent_at'])]
+    protected $fillable = [
+        'user_id',
+        'wallet_id',
+        'category_id',
+        'type',
+        'amount',
+        'description',
+        'transaction_date',
+    ];
+
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
-            'spent_at' => 'date',
+            'transaction_date' => 'date',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function wallet(): BelongsTo
+    {
+        return $this->belongsTo(Wallet::class);
     }
 
     public function category(): BelongsTo

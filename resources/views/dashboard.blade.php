@@ -26,21 +26,27 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-sm text-gray-500 mb-1">Total Bulan Ini</p>
-                    <p class="text-2xl font-bold text-indigo-600">
-                        Rp {{ number_format($totalMonth, 0, ',', '.') }}
+                    <p class="text-sm text-gray-500 mb-1">Total Pemasukan</p>
+                    <p class="text-2xl font-bold text-green-600">
+                        Rp {{ number_format($totalIncome, 0, ',', '.') }}
+                    </p>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <p class="text-sm text-gray-500 mb-1">Total Pengeluaran</p>
+                    <p class="text-2xl font-bold text-red-600">
+                        Rp {{ number_format($totalExpense, 0, ',', '.') }}
                     </p>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <p class="text-sm text-gray-500 mb-1">Jumlah Transaksi</p>
-                    <p class="text-2xl font-bold text-green-600">
+                    <p class="text-2xl font-bold text-indigo-600">
                         {{ $countMonth }}
                     </p>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-sm text-gray-500 mb-1">Rata-rata Pengeluaran</p>
+                    <p class="text-sm text-gray-500 mb-1">Rata-rata Transaksi</p>
                     <p class="text-2xl font-bold text-orange-600">
                         Rp {{ number_format($avgMonth, 0, ',', '.') }}
                     </p>
@@ -71,28 +77,30 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold">Pengeluaran Terbaru</h3>
-                            <a href="{{ route('expenses.index') }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                            <h3 class="text-lg font-semibold">Transaksi Terbaru</h3>
+                            <a href="{{ route('transactions.index') }}" class="text-indigo-600 hover:text-indigo-900 text-sm">
                                 Lihat Semua →
                             </a>
                         </div>
-                        @if ($recentExpenses->isEmpty())
-                            <p class="text-center text-gray-500 py-8">Belum ada pengeluaran bulan ini.</p>
+                        @if ($recentTransactions->isEmpty())
+                            <p class="text-center text-gray-500 py-8">Belum ada transaksi bulan ini.</p>
                         @else
                             <div class="space-y-3">
-                                @foreach ($recentExpenses as $expense)
+                                @foreach ($recentTransactions as $transaction)
                                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div class="flex items-center gap-3">
                                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                                                 style="background-color: {{ $expense->category->color ?? '#6366f1' }}">
-                                                {{ strtoupper(substr($expense->category->name ?? 'X', 0, 1)) }}
+                                                 style="background-color: {{ $transaction->category->color ?? ($transaction->type === 'income' ? '#10b981' : '#ef4444') }}">
+                                                {{ $transaction->type === 'income' ? '+' : '-' }}
                                             </div>
                                             <div>
-                                                <p class="font-medium text-gray-900">{{ $expense->category->name ?? 'Tanpa Kategori' }}</p>
-                                                <p class="text-xs text-gray-500">{{ $expense->spent_at->format('d M Y') }}</p>
+                                                <p class="font-medium text-gray-900">{{ $transaction->description ?? ($transaction->category->name ?? 'Transaksi') }}</p>
+                                                <p class="text-xs text-gray-500">{{ $transaction->transaction_date->format('d M Y') }}</p>
                                             </div>
                                         </div>
-                                        <p class="font-semibold text-gray-900">Rp {{ number_format($expense->amount, 0, ',', '.') }}</p>
+                                        <p class="font-semibold {{ $transaction->type === 'income' ? 'text-green-600' : 'text-red-600' }}">
+                                            {{ $transaction->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
+                                        </p>
                                     </div>
                                 @endforeach
                             </div>

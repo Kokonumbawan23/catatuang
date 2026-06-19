@@ -13,32 +13,29 @@ class DashboardController extends Controller
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
 
-        $totalMonth = $user->expenses()
-            ->whereMonth('spent_at', $month)
-            ->whereYear('spent_at', $year)
-            ->sum('amount');
+        $baseQuery = $user->transactions()
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year);
 
-        $countMonth = $user->expenses()
-            ->whereMonth('spent_at', $month)
-            ->whereYear('spent_at', $year)
-            ->count();
+        $totalIncome = (clone $baseQuery)->where('type', 'income')->sum('amount');
+        $totalExpense = (clone $baseQuery)->where('type', 'expense')->sum('amount');
 
-        $avgMonth = $user->expenses()
-            ->whereMonth('spent_at', $month)
-            ->whereYear('spent_at', $year)
-            ->avg('amount') ?? 0;
+        $countMonth = (clone $baseQuery)->count();
 
-        $recentExpenses = $user->expenses()
-            ->with('category')
-            ->whereMonth('spent_at', $month)
-            ->whereYear('spent_at', $year)
-            ->orderBy('spent_at', 'desc')
+        $avgMonth = (clone $baseQuery)->avg('amount') ?? 0;
+
+        $recentTransactions = $user->transactions()
+            ->with(['category', 'wallet'])
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->orderBy('transaction_date', 'desc')
             ->limit(5)
             ->get();
 
-        $categoryData = $user->expenses()
-            ->whereMonth('spent_at', $month)
-            ->whereYear('spent_at', $year)
+        $categoryData = $user->transactions()
+            ->where('type', 'expense')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
             ->selectRaw('category_id, SUM(amount) as total')
             ->with('category')
             ->groupBy('category_id')
@@ -52,10 +49,11 @@ class DashboardController extends Controller
             });
 
         return view('dashboard', [
-            'totalMonth' => $totalMonth,
+            'totalIncome' => $totalIncome,
+            'totalExpense' => $totalExpense,
             'countMonth' => $countMonth,
             'avgMonth' => $avgMonth,
-            'recentExpenses' => $recentExpenses,
+            'recentTransactions' => $recentTransactions,
             'categoryData' => $categoryData,
             'month' => $month,
             'year' => $year,
