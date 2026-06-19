@@ -1,4 +1,4 @@
-FROM php:8.5-alpine-fpm
+FROM php:8.5-alpine
 
 RUN apt-get update && apt-get install -y \
     git unzip zip libzip-dev \
