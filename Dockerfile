@@ -43,6 +43,6 @@ RUN composer install \
 # Optional:
 # RUN php artisan optimize:clear
 
-CMD CMD php artisan migrate --force \
+CMD php artisan migrate --force \
 && php artisan db:seed --force \
 && php artisan serve --host=0.0.0.0 --port=$PORT
