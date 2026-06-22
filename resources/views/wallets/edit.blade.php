@@ -25,9 +25,9 @@
 
                         <div class="mb-6">
                             <x-input-label for="balance" value="Saldo Saat Ini (Rp)" />
-                            <x-text-input id="balance" name="balance" type="number" step="1" min="0"
+                            <x-text-input id="balance" name="balance" type="text" inputmode="numeric"
                                           class="mt-1 block w-full touch-manipulation"
-                                          placeholder="0"
+                                          placeholder="Rp 0"
                                           value="{{ $wallet->balance }}"
                                           required />
                             <x-input-error :messages="$errors->get('balance')" class="mt-2" />

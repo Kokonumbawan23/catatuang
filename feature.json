@@ -32,6 +32,17 @@
           "Memiliki test untuk memastikan sistem menolak nominal transaksi bernilai 0 atau negatif."
         ],
         "evidence": "tests/Feature/WalletSecurityTest.php - 9 tests covering wallet isolation and amount validation"
+      },
+      {
+        "id": "FEAT-004",
+        "name": "Input UI Fixing",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Form input yang berhubungan dengan keuangan memiliki placeholder berawalan 'Rp' dan format currency IDR. (Perhatikan precision seperti 200000 ditulis Rp 200.000)",
+          "UI Dropdown Selector dan Modal (seperti peringatan hapus data) dirubah mengikuti dengan tema laravel breeze, tidak menggunakan bawaan browser.",
+          "Pewarnaan pada card wallet dibuat dengan kombinasi gradient warna yang lebih bervariasi, tidak monoton menggunakan warna biru dan ungu."
+        ],
+        "evidence": "transactions/create.blade.php, transactions/edit.blade.php, transactions/index.blade.php, wallets/create.blade.php, wallets/edit.blade.php, wallets/index.blade.php - all updated with Rp placeholder, custom dropdown arrows, Breeze modal confirm, and varied gradient colors"
       }
     ]
   }

@@ -24,9 +24,9 @@
 
                         <div class="mb-6">
                             <x-input-label for="balance" value="Saldo Awal (Rp)" />
-                            <x-text-input id="balance" name="balance" type="number" step="1" min="0"
+                            <x-text-input id="balance" name="balance" type="text" inputmode="numeric"
                                           class="mt-1 block w-full touch-manipulation"
-                                          placeholder="0"
+                                          placeholder="Rp 0"
                                           value="{{ old('balance', 0) }}"
                                           required />
                             <x-input-error :messages="$errors->get('balance')" class="mt-2" />
