@@ -1,0 +1,37 @@
+{
+    "project_name": "CatatUang",
+    "sprint": "Multi-Wallet & Analytics Dashboard",
+    "features": [
+      {
+        "id": "FEAT-001",
+        "name": "Multi-Wallet & Transaction Consolidation Backend",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Modul Expense lama dihapus total dari route, model, dan view.",
+          "Skema DB PostgreSQL mendukung relasi User -> many Wallets -> many Transactions.",
+          "Setiap transaksi baru berhasil divalidasi kepemilikannya (wallet_id milik auth()->user()).",
+          "Setiap mutasi transaksi otomatis memperbarui nominal balance di tabel wallets menggunakan DB::transaction()."
+        ]
+      },
+      {
+        "id": "FEAT-002",
+        "name": "Web-First Analytics UI & Context Switcher",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Layout dashboard horizontal memanfaatkan lebar layar max-w-7xl tanpa sidebar (Breeze theme).",
+          "Tersedia dropdown selector wallet untuk memuat data ringkasan finansial (In, Out, Saldo) secara dinamis.",
+          "Form input manual (kiri) dan tabel riwayat (kanan) tampil berdampingan secara horizontal pada layar desktop."
+        ]
+      },
+      {
+        "id": "FEAT-003",
+        "name": "Automated Security Test Integration",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Memiliki automated test PHPUnit untuk memverifikasi isolasi data wallet antar-user (mencegah data leakage).",
+          "Memiliki test untuk memastikan sistem menolak nominal transaksi bernilai 0 atau negatif."
+        ],
+        "evidence": "tests/Feature/WalletSecurityTest.php - 9 tests covering wallet isolation and amount validation"
+      }
+    ]
+  }
