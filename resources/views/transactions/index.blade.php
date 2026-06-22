@@ -17,14 +17,8 @@
                 <div class="w-full sm:w-auto flex items-center space-x-3">
                     @if($wallets->isNotEmpty())
                         <form method="GET" action="{{ route('transactions.index') }}" id="wallet-switcher-form" class="flex items-center gap-2">
-                            <label for="wallet_context" class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Dompet:</label>
-                                <select id="wallet_context" name="wallet_id" onchange="document.getElementById('wallet-switcher-form').submit()" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white appearance-none" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1rem; padding-right: 2.5rem;">
-                                @foreach($wallets as $wallet)
-                                    <option value="{{ $wallet->id }}" {{ request('wallet_id', $activeWallet?->id) == $wallet->id ? 'selected' : '' }}>
-                                        {{ $wallet->name }} (Rp {{ number_format($wallet->balance, 0, ',', '.') }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Dompet:</label>
+                            <x-wallet-select :wallets="$wallets" />
                         </form>
                     @endif
                 </div>

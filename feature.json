@@ -43,6 +43,16 @@
           "Pewarnaan pada card wallet dibuat dengan kombinasi gradient warna yang lebih bervariasi, tidak monoton menggunakan warna biru dan ungu."
         ],
         "evidence": "resources/js/app.js, resources/views/transactions/create.blade.php, transactions/edit.blade.php, transactions/index.blade.php, wallets/create.blade.php, wallets/edit.blade.php, wallets/index.blade.php - JavaScript IDR auto-formatting (Rp X.XXX), Rp placeholder, Breeze dropdowns/modals, varied wallet gradients"
+      },
+      {
+        "id": "FIX-001",
+        "name": "Dropdown Selector UI Fix",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Dropdown selector untuk memilih wallet di dashboard tidak menggunakan style bawaan browser, melainkan mengikuti tema laravel breeze.",
+          "Dropdown selector harus responsif dan mudah digunakan di berbagai ukuran layar."
+        ],
+        "evidence": "resources/views/components/wallet-select.blade.php - Alpine.js custom dropdown component with Breeze styling; resources/views/transactions/index.blade.php - wallet switcher replaced with x-wallet-select component"
       }
     ]
   }
