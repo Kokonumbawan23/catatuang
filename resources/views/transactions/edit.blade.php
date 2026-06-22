@@ -15,43 +15,37 @@
 
                         <div class="mb-4">
                             <x-input-label for="wallet_id" value="Dompet" />
-                            <select id="wallet_id" name="wallet_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 touch-manipulation bg-white appearance-none"
-                                    required style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
+                            <x-select id="wallet_id" name="wallet_id" class="mt-1" required>
                                 <option value="">Pilih Dompet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}" {{ $transaction->wallet_id == $wallet->id ? 'selected' : '' }}>
                                         {{ $wallet->name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </x-select>
                             <x-input-error :messages="$errors->get('wallet_id')" class="mt-2" />
                         </div>
 
                         <div class="mb-4">
                             <x-input-label for="type" value="Tipe Transaksi" />
-                            <select id="type" name="type"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 touch-manipulation bg-white appearance-none"
-                                    required style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
+                            <x-select id="type" name="type" class="mt-1" required>
                                 <option value="">Pilih Tipe</option>
                                 <option value="income" {{ $transaction->type == 'income' ? 'selected' : '' }}>Pemasukan</option>
                                 <option value="expense" {{ $transaction->type == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
-                            </select>
+                            </x-select>
                             <x-input-error :messages="$errors->get('type')" class="mt-2" />
                         </div>
 
                         <div class="mb-4">
                             <x-input-label for="category_id" value="Kategori" />
-                            <select id="category_id" name="category_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 touch-manipulation bg-white appearance-none"
-                                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem;">
+                            <x-select id="category_id" name="category_id" class="mt-1">
                                 <option value="">Pilih Kategori (opsional)</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" {{ $transaction->category_id == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </x-select>
                             <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                         </div>
 

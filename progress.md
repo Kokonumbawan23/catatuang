@@ -2,7 +2,7 @@
 
 ## Latest Verified State
 - **Tanggal:** 2026-06-22
-- **Last Status:** FIX-001 Dropdown Selector UI Fix - Custom wallet-select component dengan Alpine.js, Breeze-styled.
+- **Last Status:** FIX-001 Dropdown Selector UI Fix - Semua dropdown selector di seluruh aplikasi menggunakan Breeze-styled x-select component.
 - **Kondisi Test:** 34 tests passed.
 
 ## Next Target Step

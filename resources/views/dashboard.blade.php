@@ -1,23 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Dashboard') }}
             </h2>
-            <form method="GET" action="{{ route('dashboard') }}" class="flex gap-2">
-                <select name="month" class="rounded-md border-gray-300 shadow-sm text-sm">
+            <form method="GET" action="{{ route('dashboard') }}" class="flex sm:flex-row gap-2 justify-start w-full">
+                <x-select name="month" class="w-36">
                     @for ($m = 1; $m <= 12; $m++)
                         <option value="{{ $m }}" {{ $m == $month ? 'selected' : '' }}>
                             {{ date('F', mktime(0, 0, 0, $m, 1)) }}
                         </option>
                     @endfor
-                </select>
-                <select name="year" class="rounded-md border-gray-300 shadow-sm text-sm">
+                </x-select>
+                <x-select name="year" class="w-28">
                     @for ($y = now()->year - 2; $y <= now()->year + 1; $y++)
                         <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
-                </select>
-                <button type="submit" class="px-3 py-1 bg-gray-800 text-white text-sm rounded-md hover:bg-gray-700">
+                </x-select>
+                <button type="submit" class="px-6 py-1 bg-gray-800 text-white text-sm rounded-md hover:bg-gray-700">
                     Filter
                 </button>
             </form>
@@ -25,7 +25,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <p class="text-sm text-gray-500 mb-1">Total Pemasukan</p>
@@ -62,9 +62,9 @@
                         <div class="relative h-64">
                             <canvas id="expenseChart"></canvas>
                         </div>
-                        <div class="mt-4 grid grid-cols-2 gap-2">
+                        <div class="mt-6 grid grid-cols-2 gap-2">
                             @foreach ($categoryData as $cat)
-                                <div class="flex items-center gap-2 text-sm">
+                                <div class="flex items-center gap-1 text-sm">
                                     <span class="w-3 h-3 rounded-full" style="background-color: {{ $cat['color'] }}"></span>
                                     <span class="text-gray-600">{{ $cat['name'] }}</span>
                                     <span class="ml-auto font-medium">Rp {{ number_format($cat['total'], 0, ',', '.') }}</span>

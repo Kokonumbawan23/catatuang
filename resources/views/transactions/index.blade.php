@@ -61,20 +61,20 @@
                             @csrf
                             <div>
                                 <x-input-label for="form_wallet" :value="__('Simpan ke Dompet')" />
-                                <select id="form_wallet" name="wallet_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 rounded-md shadow-sm text-sm bg-white appearance-none" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem; padding-right: 2.5rem;">
+                                <x-select id="form_wallet" name="wallet_id" class="mt-1">
                                     @foreach($wallets as $wallet)
                                         <option value="{{ $wallet->id }}" {{ $activeWallet && $activeWallet->id == $wallet->id ? 'selected' : '' }}>{{ $wallet->name }}</option>
                                     @endforeach
-                                </select>
+                                </x-select>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <x-input-label for="form_type" :value="__('Tipe')" />
-                                    <select id="form_type" name="type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 rounded-md shadow-sm text-sm bg-white appearance-none" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem; padding-right: 2.5rem;">
+                                    <x-select id="form_type" name="type" class="mt-1">
                                         <option value="expense">Pengeluaran</option>
                                         <option value="income">Pemasukan</option>
-                                    </select>
+                                    </x-select>
                                 </div>
                                 <div>
                                     <x-input-label for="amount" :value="__('Nominal (Rp)')" />
@@ -85,12 +85,12 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <x-input-label for="category" :value="__('Kategori')" />
-                                    <select id="category" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 rounded-md shadow-sm text-sm bg-white appearance-none" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239b9b9b%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem; padding-right: 2.5rem;">
+                                    <x-select id="category" name="category_id" class="mt-1">
                                         <option value="">Pilih Kategori</option>
                                         @foreach($categories ?? [] as $category)
                                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                                         @endforeach
-                                    </select>
+                                    </x-select>
                                 </div>
                                 <div>
                                     <x-input-label for="transaction_date" :value="__('Tanggal')" />
