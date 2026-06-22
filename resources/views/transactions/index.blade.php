@@ -18,6 +18,7 @@
                     @if($wallets->isNotEmpty())
                         <form method="GET" action="{{ route('transactions.index') }}" id="wallet-switcher-form" class="flex items-center gap-2">
                             <label class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Dompet:</label>
+                            <input type="hidden" name="wallet_id" id="wallet_id_input" value="{{ request('wallet_id', $activeWallet?->id) }}">
                             <x-wallet-select :wallets="$wallets" />
                         </form>
                     @endif

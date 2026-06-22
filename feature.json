@@ -49,10 +49,11 @@
         "name": "Dropdown Selector UI Fix",
         "status": "completed",
         "acceptance_criteria": [
-          "Dropdown selector di seluruh aplikasi tidak menggunakan style bawaan browser, melainkan mengikuti tema laravel breeze.",
-          "Dropdown selector harus responsif dan mudah digunakan di berbagai ukuran layar."
+          "Dropdown selector di seluruh aplikasi tidak menggunakan style bawaan browser, melainkan mengikuti tema laravel breeze. (seperti wallet-select.blade.php)",
+          "Dropdown selector harus responsif dan mudah digunakan di berbagai ukuran layar.",
+          "Wallet Select dropdown dapat memilih wallet yang berbeda dan memuat data ringkasan finansial (In, Out, Saldo) secara dinamis."
         ],
-        "evidence": "resources/views/components/select.blade.php - reusable Breeze-styled select component; resources/views/components/wallet-select.blade.php - Alpine.js custom dropdown for wallet switcher; All native <select> elements in dashboard, transactions/create, transactions/edit, transactions/index replaced with x-select component"
+        "evidence": "resources/views/components/select.blade.php - reusable Breeze-styled select component; resources/views/components/wallet-select.blade.php - Alpine.js custom dropdown for wallet switcher with hidden input for form submission; All native <select> elements replaced with x-select or x-wallet-select"
       }
     ]
   }

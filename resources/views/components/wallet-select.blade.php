@@ -4,11 +4,13 @@
     wallets: [],
     init() {
         this.wallets = @js($wallets ?? []);
-        this.selectedWallet = this.wallets.find(w => w.id == {{ request('wallet_id', $activeWallet?->id ?? 'null') }});
+        const activeId = {{ request('wallet_id', $activeWallet?->id ?? 'null') }};
+        this.selectedWallet = this.wallets.find(w => w.id === activeId);
     },
     selectWallet(wallet) {
         this.selectedWallet = wallet;
         this.open = false;
+        document.getElementById('wallet_id_input').value = wallet.id;
         document.getElementById('wallet-switcher-form').submit();
     }
 }" class="relative w-full sm:w-auto">
