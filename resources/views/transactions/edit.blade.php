@@ -58,7 +58,7 @@
                         <div class="mb-4">
                             <x-input-label for="amount" value="Nominal (Rp)" />
                             <x-text-input id="amount" name="amount" type="text" inputmode="numeric"
-                                          class="mt-1 block w-full touch-manipulation"
+                                          class="mt-1 block w-full touch-manipulation idr-input"
                                           placeholder="Rp 0"
                                           value="{{ $transaction->amount }}"
                                           required />

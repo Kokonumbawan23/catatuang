@@ -84,7 +84,7 @@
                                 </div>
                                 <div>
                                     <x-input-label for="amount" :value="__('Nominal (Rp)')" />
-                                    <x-text-input id="amount" name="amount" type="text" inputmode="numeric" class="mt-1 block w-full text-sm" required placeholder="Rp 0" />
+                                    <x-text-input id="amount" name="amount" type="text" inputmode="numeric" class="mt-1 block w-full text-sm idr-input" required placeholder="Rp 0" />
                                 </div>
                             </div>
 

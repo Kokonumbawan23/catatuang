@@ -42,7 +42,7 @@
           "UI Dropdown Selector dan Modal (seperti peringatan hapus data) dirubah mengikuti dengan tema laravel breeze, tidak menggunakan bawaan browser.",
           "Pewarnaan pada card wallet dibuat dengan kombinasi gradient warna yang lebih bervariasi, tidak monoton menggunakan warna biru dan ungu."
         ],
-        "evidence": "transactions/create.blade.php, transactions/edit.blade.php, transactions/index.blade.php, wallets/create.blade.php, wallets/edit.blade.php, wallets/index.blade.php - all updated with Rp placeholder, custom dropdown arrows, Breeze modal confirm, and varied gradient colors"
+        "evidence": "resources/js/app.js, resources/views/transactions/create.blade.php, transactions/edit.blade.php, transactions/index.blade.php, wallets/create.blade.php, wallets/edit.blade.php, wallets/index.blade.php - JavaScript IDR auto-formatting (Rp X.XXX), Rp placeholder, Breeze dropdowns/modals, varied wallet gradients"
       }
     ]
   }
