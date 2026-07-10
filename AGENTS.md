@@ -34,6 +34,29 @@ PHP 8.3+, SQLite default, Tailwind + Alpine.js + Vite, Laravel Breeze auth.
 - **Layouts**: `App\_view\Components\AppLayout` and `GuestLayout` are class-based Blade components.
 - **Routes**: `routes/web.php` — resource controllers for `transactions` and `wallets`,
   auth via `routes/auth.php` (Breeze scaffolding).
+- **SPA API** (`routes/api.php`): Laravel Sanctum token-based API with `api.` route prefix.
+  Controllers in `app/Http/Controllers/Api/`.
+
+### SPA API Endpoints
+
+| Route | Method | Auth | Description |
+|-------|--------|------|-------------|
+| `/api/auth/login` | POST | - | Login, returns `{user, token}` |
+| `/api/auth/register` | POST | - | Register, returns `{user, token}` |
+| `/api/auth/logout` | POST | Sanctum | Logout (deletes current token) |
+| `/api/auth/me` | GET | Sanctum | Get current user |
+| `/api/wallets` | GET/POST | Sanctum | List/Create wallets |
+| `/api/wallets/{id}` | GET/PUT/DELETE | Sanctum | Show/Update/Delete wallet |
+| `/api/transactions` | GET/POST | Sanctum | List/Create transactions |
+| `/api/transactions/{id}` | GET/PUT/DELETE | Sanctum | Show/Update/Delete transaction |
+| `/api/transactions/export` | GET | Sanctum | Export CSV |
+| `/api/recurring-transactions` | GET/POST | Sanctum | List/Create recurring |
+| `/api/recurring-transactions/{id}` | GET/PUT/DELETE | Sanctum | Show/Update/Delete recurring |
+| `/api/recurring-transactions/{id}/toggle` | PATCH | Sanctum | Toggle active status |
+| `/api/categories` | GET | Sanctum | List categories |
+| `/api/dashboard` | GET | Sanctum | Dashboard summary |
+
+**Note**: API routes use `api.*` prefix to avoid collision with web routes (e.g., `api.transactions.index` vs `transactions.index`).
 
 ## Testing
 
