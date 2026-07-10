@@ -10,9 +10,14 @@ class Category extends Model
 {
     use HasFactory;
 
-    #[Fillable(['name', 'icon', 'color'])]
-    public function expenses(): HasMany
+    protected $fillable = [
+        'name',
+        'icon',
+        'color',
+    ];
+
+    public function transactions(): HasMany
     {
-        return $this->hasMany(Expense::class);
+        return $this->hasMany(Transaction::class);
     }
 }

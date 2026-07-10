@@ -14,37 +14,19 @@
 
                         <div class="mb-4">
                             <x-input-label for="wallet_id" value="Dompet" />
-                            <x-select id="wallet_id" name="wallet_id" class="mt-1" required>
-                                <option value="">Pilih Dompet</option>
-                                @foreach ($wallets as $wallet)
-                                    <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
-                                        {{ $wallet->name }}
-                                    </option>
-                                @endforeach
-                            </x-select>
+                            <x-select id="wallet_id" name="wallet_id" :options="$wallets->map(fn($w) => ['value' => $w->id, 'label' => $w->name])" value="{{ old('wallet_id') }}" class="mt-1" required placeholder="Pilih Dompet" />
                             <x-input-error :messages="$errors->get('wallet_id')" class="mt-2" />
                         </div>
 
                         <div class="mb-4">
                             <x-input-label for="type" value="Tipe Transaksi" />
-                            <x-select id="type" name="type" class="mt-1" required>
-                                <option value="">Pilih Tipe</option>
-                                <option value="income" {{ old('type') == 'income' ? 'selected' : '' }}>Pemasukan</option>
-                                <option value="expense" {{ old('type') == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
-                            </x-select>
+                            <x-select id="type" name="type" :options="[['value' => 'income', 'label' => 'Pemasukan'], ['value' => 'expense', 'label' => 'Pengeluaran']]" value="{{ old('type') }}" class="mt-1" required placeholder="Pilih Tipe" />
                             <x-input-error :messages="$errors->get('type')" class="mt-2" />
                         </div>
 
                         <div class="mb-4">
                             <x-input-label for="category_id" value="Kategori" />
-                            <x-select id="category_id" name="category_id" class="mt-1">
-                                <option value="">Pilih Kategori (opsional)</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </x-select>
+                            <x-select id="category_id" name="category_id" :options="$categories->map(fn($c) => ['value' => $c->id, 'label' => $c->name])" value="{{ old('category_id') }}" class="mt-1" placeholder="Pilih Kategori (opsional)" />
                             <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                         </div>
 

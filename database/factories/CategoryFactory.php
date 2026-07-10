@@ -17,4 +17,18 @@ class CategoryFactory extends Factory
             'color' => fake()->hexColor(),
         ];
     }
+
+    public function expense(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Expense Category',
+        ]);
+    }
+
+    public function income(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Income Category',
+        ]);
+    }
 }

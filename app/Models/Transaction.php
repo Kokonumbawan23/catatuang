@@ -42,4 +42,25 @@ class Transaction extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeIncomes($query)
+    {
+        return $query->where('type', 'income');
+    }
+
+    public function scopeExpenses($query)
+    {
+        return $query->where('type', 'expense');
+    }
+
+    public function scopeForMonth($query, $month, $year)
+    {
+        return $query->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year);
+    }
 }

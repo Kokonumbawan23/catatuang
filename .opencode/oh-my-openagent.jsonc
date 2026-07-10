@@ -1,0 +1,9 @@
+{
+    "sisyphus_agent": {
+        "disabled": true,
+        "default_builder_enabled": true, 
+        "planner_enabled": false,
+        "replace_plan": false 
+    }
+}
+    

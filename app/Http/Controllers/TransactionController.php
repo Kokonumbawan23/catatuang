@@ -23,7 +23,7 @@ class TransactionController extends Controller
             ? $wallets->firstWhere('id', $walletId)
             : $wallets->first();
 
-        if (!$activeWallet && $wallets->isEmpty()) {
+        if (! $activeWallet && $wallets->isEmpty()) {
             $activeWallet = null;
         }
 
@@ -41,7 +41,7 @@ class TransactionController extends Controller
         }
 
         if ($search) {
-            $query->where('description', 'like', '%' . $search . '%');
+            $query->where('description', 'like', '%'.$search.'%');
         }
 
         $transactions = $query->orderBy('transaction_date', 'desc')
@@ -95,7 +95,7 @@ class TransactionController extends Controller
                 'required',
                 'exists:wallets,id',
                 function ($attribute, $value, $fail) use ($user) {
-                    if (!Wallet::where('id', $value)->where('user_id', $user->id)->exists()) {
+                    if (! Wallet::where('id', $value)->where('user_id', $user->id)->exists()) {
                         $fail('Dompet tidak valid.');
                     }
                 },
@@ -155,7 +155,7 @@ class TransactionController extends Controller
                 'required',
                 'exists:wallets,id',
                 function ($attribute, $value, $fail) use ($user) {
-                    if (!Wallet::where('id', $value)->where('user_id', $user->id)->exists()) {
+                    if (! Wallet::where('id', $value)->where('user_id', $user->id)->exists()) {
                         $fail('Dompet tidak valid.');
                     }
                 },
@@ -216,5 +216,58 @@ class TransactionController extends Controller
 
         return redirect()->route('transactions.index', ['wallet_id' => $walletId])
             ->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    public function export(Request $request)
+    {
+        $user = $request->user();
+        $format = $request->input('format', 'csv');
+        $month = $request->input('month', now()->month);
+        $year = $request->input('year', now()->year);
+        $type = $request->input('type');
+
+        if ($user === null) {
+            abort(403, 'User is null');
+        }
+
+        if (! in_array($format, ['csv', 'xlsx', 'pdf'])) {
+            abort(404, 'Invalid format: '.$format);
+        }
+
+        $query = $user->transactions()
+            ->with('category')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year);
+
+        if ($type) {
+            $query->where('type', strtolower($type));
+        }
+
+        $transactions = $query->orderBy('transaction_date', 'desc')->get();
+
+        $filename = 'transactions_'.$month.'_'.$year.'.'.$format;
+
+        if ($format === 'csv') {
+            $headers = ['Content-Type' => 'text/csv; charset=UTF-8'];
+
+            return response()->stream(function () use ($transactions) {
+                $handle = fopen('php://output', 'w');
+                fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+                fputcsv($handle, ['Tanggal', 'Jenis', 'Kategori', 'Jumlah', 'Deskripsi']);
+
+                foreach ($transactions as $t) {
+                    fputcsv($handle, [
+                        $t->transaction_date->format('d-m-Y'),
+                        $t->type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                        $t->category?->name ?? '-',
+                        number_format($t->amount, 0, ',', '.'),
+                        $t->description ?? '',
+                    ]);
+                }
+                fclose($handle);
+            }, 200, array_merge($headers, ['Content-Disposition' => 'attachment; filename="'.$filename.'"']));
+        }
+
+        abort(404, 'Format not supported: '.$format);
     }
 }

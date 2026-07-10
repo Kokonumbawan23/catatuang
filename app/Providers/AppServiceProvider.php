@@ -2,26 +2,20 @@
 
 namespace App\Providers;
 
-use App\Models\Expense;
-use App\Policies\ExpensePolicy;
+use App\Models\RecurringTransaction;
+use App\Policies\RecurringTransactionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        Gate::policy(Expense::class, ExpensePolicy::class);
+        Gate::policy(RecurringTransaction::class, RecurringTransactionPolicy::class);
     }
 }

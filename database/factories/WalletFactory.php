@@ -14,7 +14,7 @@ class WalletFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => fake()->word() . ' Wallet',
+            'name' => fake()->word().' Wallet',
             'balance' => fake()->randomFloat(2, 0, 100000),
         ];
     }
