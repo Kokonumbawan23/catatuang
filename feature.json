@@ -54,6 +54,43 @@
           "Wallet Select dropdown dapat memilih wallet yang berbeda dan memuat data ringkasan finansial (In, Out, Saldo) secara dinamis."
         ],
         "evidence": "resources/views/components/select.blade.php - reusable Breeze-styled select component; resources/views/components/wallet-select.blade.php - Alpine.js custom dropdown for wallet switcher with hidden input for form submission; All native <select> elements replaced with x-select or x-wallet-select"
+      },
+{
+        "id": "FEAT-005",
+        "name": "Recurring Transactions",
+        "status": "completed",
+        "acceptance_criteria": [
+          "User dapat membuat, mengedit, dan menghapus recurring transaction.",
+          "Recurring transaction mendukung frekuensi daily, weekly, monthly, yearly dengan JSON schedule_config.",
+          "Sistem memproses recurring transactions via artisan command yang dijadwalkan (ProcessRecurringTransactions).",
+          "Wallet balance diperbarui otomatis saat recurring transaction berhasil diproses.",
+          "Recurring transaction tidak tereksekusi jika di luar date range (start_date/end_date) atau is_active=false.",
+          "Policy memastikan user hanya bisa mengakses recurring transaction miliknya sendiri."
+        ],
+        "evidence": "database/migrations/2026_06_23_000001_create_recurring_transactions_table.php; app/Models/RecurringTransaction.php; app/Policies/RecurringTransactionPolicy.php; app/Services/RecurringTransactionScheduleService.php; app/Console/Commands/ProcessRecurringTransactions.php; app/Http/Requests/StoreRecurringTransactionRequest.php; app/Http/Requests/UpdateRecurringTransactionRequest.php; app/Http/Controllers/RecurringTransactionController.php; resources/views/recurring-transactions/*.blade.php; database/factories/RecurringTransactionFactory.php; tests/Feature/RecurringTransactionTest.php (15 tests - all passing)"
+      },
+      {
+        "id": "FEAT-006",
+        "name": "Dark Mode Toggle",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Dark mode toggle button available in navigation",
+          "Dark mode preference persisted in localStorage",
+          "All pages respect dark mode preference"
+        ],
+        "evidence": "resources/views/components/dark-mode-toggle.blade.php; resources/views/layouts/app.blade.php; resources/views/layouts/navigation.blade.php; tailwind.config.js (darkMode: 'class')"
+      },
+      {
+        "id": "FEAT-007",
+        "name": "SPA Conversion - Backend API Layer",
+        "status": "in_progress",
+        "acceptance_criteria": [
+          "Laravel Sanctum installed for API authentication",
+          "HasApiTokens trait added to User model",
+          "API Controllers created (Wallet, Transaction, RecurringTransaction, Dashboard, Category)",
+          "API routes properly namespaced to avoid conflict with web routes"
+        ],
+        "evidence": "app/Models/User.php (HasApiTokens); app/Http/Controllers/Api/*.php (API controllers); routes/api.php (Sanctum configured); app/Http/Requests/StoreWalletRequest.php; app/Http/Requests/UpdateWalletRequest.php"
       }
     ]
   }
