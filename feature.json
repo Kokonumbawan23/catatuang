@@ -83,7 +83,7 @@
       {
         "id": "FEAT-007",
         "name": "SPA Conversion - Backend API Layer",
-        "status": "in_progress",
+        "status": "completed",
         "acceptance_criteria": [
           "Laravel Sanctum installed for API authentication",
           "HasApiTokens trait added to User model",
@@ -92,6 +92,20 @@
           "API Authentication endpoints (login, register, logout, me)"
         ],
         "evidence": "app/Models/User.php (HasApiTokens); app/Http/Controllers/Api/*.php (6 API controllers including AuthApiController); routes/api.php (Sanctum configured, api.* namespaced routes); app/Http/Requests/StoreWalletRequest.php; app/Http/Requests/UpdateWalletRequest.php"
+      },
+      {
+        "id": "FEAT-008",
+        "name": "Vue 3 SPA Frontend",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Vue 3 SPA with Pinia state management and Vue Router",
+          "Auth pages: Login and Register with form validation",
+          "Dashboard page with wallet selector, 3-col summary cards, recent transactions",
+          "Wallets page with gradient cards, create/edit modal, delete confirmation modal",
+          "Transactions page with 3-col layout (form + summary + table), inline CRUD, delete modal",
+          "Blade template parity: no Alpine.js x-show, proper Vue transitions for modals"
+        ],
+        "evidence": "resources/js/spa/ - App.vue, router.js, stores/auth.js; pages/ - Login.vue (84 lines), Register.vue (115 lines), Dashboard.vue (131 lines), Wallets.vue (294 lines), Transactions.vue (446 lines)"
       }
     ]
   }

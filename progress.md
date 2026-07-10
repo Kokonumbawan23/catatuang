@@ -94,9 +94,36 @@ Created `AuthApiController` with endpoints:
 - `POST /api/auth/logout` → `{message}` (auth:sanctum required)
 - `GET /api/auth/me` → `{user}` (auth:sanctum required)
 
+### Vue 3 SPA Frontend (Phase 4)
+Created Vue 3 SPA with Pinia, Vue Router, Axios:
+1. **App.vue** - Nav bar with auth-aware navigation (Dashboard, Dompet, Transaksi), logout button
+2. **router.js** - Routes for `/login`, `/register`, `/`, `/wallets`, `/transactions` with auth guards
+3. **stores/auth.js** - Pinia store for login/register/logout/me with localStorage token persistence
+4. **pages/Login.vue** - Login form with error handling, redirect to dashboard
+5. **pages/Register.vue** - Registration form with validation error display
+6. **pages/Dashboard.vue** - Wallet selector, 3-col summary cards (income/expense/balance), recent transactions table
+7. **pages/Wallets.vue** - 2-col gradient wallet cards, create/edit modal, Blade-style delete confirmation modal
+8. **pages/Transactions.vue** - 3-col layout (form + summary + table), inline CRUD, delete modal, search, pagination
+
+### Blade Template Parity Fixes
+- Replaced `x-show` (Alpine.js) with Vue `v-if` + `<Transition>` in Wallets.vue and Transactions.vue
+- Fixed Dashboard.vue wallet selector width `w-64` → `w-80`
+- Dashboard 3rd summary card: static bg (no hover), matching Blade
+- Added modal transition CSS to `resources/css/app.css`
+- Delete confirmation modals styled to match Blade templates
+
+### Dashboard Charts (Phase 5)
+Added expense breakdown doughnut chart to Dashboard.vue:
+1. Installed Chart.js npm package
+2. Updated DashboardApiController to include `category_data` (expense breakdown by category)
+3. Added doughnut chart canvas with Chart.js in Dashboard.vue
+4. Chart shows category colors matching Blade dashboard
+5. Legend displays category name and formatted amount
+
 ### Verification
 - All 77 tests pass
-- Laravel Pint: 101 files, 1 style issue fixed
+- Laravel Pint: 102 files, all passing
+- npm run build: 99 modules, Dashboard chunk 164.31 kB (includes Chart.js)
 
 ## Session Summary (2026-06-23)
 ### What Was Done
