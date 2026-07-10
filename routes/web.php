@@ -11,6 +11,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/spa', function () {
+    return view('spa');
+})->name('spa');
+
+Route::get('/spa/{any}', function () {
+    return view('spa');
+})->where('any', '.*');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

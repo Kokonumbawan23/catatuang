@@ -28,7 +28,7 @@ class AuthApiController extends Controller
             ]);
         }
 
-        $deviceName = $request->string('device_name')->default('SPA');
+        $deviceName = $request->string('device_name', 'SPA');
 
         $token = $user->createToken($deviceName)->plainTextToken;
 
@@ -52,7 +52,7 @@ class AuthApiController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $deviceName = $request->string('device_name')->default('SPA');
+        $deviceName = $request->string('device_name', 'SPA');
 
         $token = $user->createToken($deviceName)->plainTextToken;
 

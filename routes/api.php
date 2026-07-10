@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\RecurringTransactionApiController;
 use App\Http\Controllers\Api\TransactionApiController;
 use App\Http\Controllers\Api\WalletApiController;
@@ -19,6 +20,11 @@ Route::post('/auth/register', [AuthApiController::class, 'register'])->name('api
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthApiController::class, 'logout'])->name('api.auth.logout');
     Route::get('/auth/me', [AuthApiController::class, 'me'])->name('api.auth.me');
+
+    Route::get('/profile', [ProfileApiController::class, 'show'])->name('api.profile.show');
+    Route::patch('/profile', [ProfileApiController::class, 'update'])->name('api.profile.update');
+    Route::put('/profile/password', [ProfileApiController::class, 'updatePassword'])->name('api.profile.password');
+    Route::delete('/profile', [ProfileApiController::class, 'destroy'])->name('api.profile.destroy');
 
     Route::get('/dashboard', [DashboardApiController::class, 'index'])->name('api.dashboard');
     Route::apiResource('wallets', WalletApiController::class)->names([

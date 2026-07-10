@@ -41,6 +41,25 @@ class DashboardApiController extends Controller
             ->limit(5)
             ->get();
 
+        $categoryData = $user->transactions()
+            ->where('type', 'expense')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->when($activeWallet, function ($query) use ($activeWallet) {
+                $query->where('wallet_id', $activeWallet->id);
+            })
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->with('category')
+            ->groupBy('category_id')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->category->name ?? 'Tanpa Kategori',
+                    'color' => $item->category->color ?? '#95A5A6',
+                    'total' => (float) $item->total,
+                ];
+            });
+
         return response()->json([
             'data' => [
                 'wallets' => $wallets,
@@ -53,6 +72,7 @@ class DashboardApiController extends Controller
                     'year' => $year,
                 ],
                 'recent_transactions' => $recentTransactions,
+                'category_data' => $categoryData,
             ],
         ]);
     }
