@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\RecurringTransactionApiController;
@@ -12,7 +13,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/auth/login', [AuthApiController::class, 'login'])->name('api.auth.login');
+Route::post('/auth/register', [AuthApiController::class, 'register'])->name('api.auth.register');
+
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthApiController::class, 'logout'])->name('api.auth.logout');
+    Route::get('/auth/me', [AuthApiController::class, 'me'])->name('api.auth.me');
+
     Route::get('/dashboard', [DashboardApiController::class, 'index'])->name('api.dashboard');
     Route::apiResource('wallets', WalletApiController::class)->names([
         'index' => 'api.wallets.index',

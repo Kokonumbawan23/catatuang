@@ -63,23 +63,40 @@
 ## SPA Conversion Work (Branch: spa-conversion)
 
 ### Completed
-1. Installed Laravel Sanctum for API authentication
+1. Installed Laravel Sanctum for API authentication (Phase 1)
 2. Added `HasApiTokens` trait to User model
 3. Created Form Requests: `StoreWalletRequest`, `UpdateWalletRequest`
-4. Created API Controllers (not yet routed):
+4. Created API Controllers:
    - `WalletApiController`
    - `TransactionApiController`
    - `RecurringTransactionApiController`
    - `DashboardApiController`
    - `CategoryApiController`
+5. Added API routes with `api.` prefix to avoid web route name collisions (Phase 2)
 
-### Deferred
-- API routes deferred - adding them conflicted with existing web route tests
-- Next: Add API routes with proper namespace prefix (`api.`) to avoid route name collisions
+### Routes Added (api.* namespaced)
+- `api.dashboard` - Dashboard data
+- `api.wallets.index/store/show/update/destroy`
+- `api.transactions.index/store/show/update/destroy`
+- `api.transactions.export`
+- `api.recurring-transactions.index/store/show/update/destroy`
+- `api.recurring-transactions.toggle`
+- `api.categories.index`
 
-### Issue Encountered
-- Adding `apiResource` routes with same names as web routes caused test failures
-- Resolution: Deferred API routes to later phase when frontend is ready
+### Issue Encountered & Resolution
+- Initial API routes had same names as web routes causing 77 test failures
+- Resolution: Added `api.` prefix to all API route names (e.g., `api.transactions.index` vs `transactions.index`)
+
+### API Authentication (Phase 3)
+Created `AuthApiController` with endpoints:
+- `POST /api/auth/login` → `{user, token}` (email, password)
+- `POST /api/auth/register` → `{user, token}` (name, email, password)
+- `POST /api/auth/logout` → `{message}` (auth:sanctum required)
+- `GET /api/auth/me` → `{user}` (auth:sanctum required)
+
+### Verification
+- All 77 tests pass
+- Laravel Pint: 101 files, 1 style issue fixed
 
 ## Session Summary (2026-06-23)
 ### What Was Done

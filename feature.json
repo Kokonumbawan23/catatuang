@@ -88,9 +88,10 @@
           "Laravel Sanctum installed for API authentication",
           "HasApiTokens trait added to User model",
           "API Controllers created (Wallet, Transaction, RecurringTransaction, Dashboard, Category)",
-          "API routes properly namespaced to avoid conflict with web routes"
+          "API routes properly namespaced to avoid conflict with web routes",
+          "API Authentication endpoints (login, register, logout, me)"
         ],
-        "evidence": "app/Models/User.php (HasApiTokens); app/Http/Controllers/Api/*.php (API controllers); routes/api.php (Sanctum configured); app/Http/Requests/StoreWalletRequest.php; app/Http/Requests/UpdateWalletRequest.php"
+        "evidence": "app/Models/User.php (HasApiTokens); app/Http/Controllers/Api/*.php (6 API controllers including AuthApiController); routes/api.php (Sanctum configured, api.* namespaced routes); app/Http/Requests/StoreWalletRequest.php; app/Http/Requests/UpdateWalletRequest.php"
       }
     ]
   }
