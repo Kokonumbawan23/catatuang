@@ -50,20 +50,13 @@ RUN composer install \
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 # ⚡ CRITICAL RAILWAY ADJUSTMENTS ⚡
-# 1. Railway injects the $PORT variable dynamically. Tell FrankenPHP to bind to it.
 ENV SERVER_NAME=":80" 
-
-# 2. Tell FrankenPHP to run via the standard Caddy proxy layer
 ENV FRANKENPHP_CONFIG=""
 
-# 3. Create an execution entrypoint script to run migrations safely
-RUN echo '#!/bin/sh\n\
-php artisan config:cache\n\
-php artisan route:cache\n\
-php artisan view:cache\n\
-php artisan migrate --force\n\
-php artisan db:seed --force\n\
-exec frankenphp php-server --port ${PORT:-80} --root public/\n\
-' > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# Native inline execution to completely bypass script line-ending bugs
+CMD php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan migrate --force && \
+    php artisan db:seed --force && \
+    exec frankenphp php-server --port ${PORT:-80} --root public/
