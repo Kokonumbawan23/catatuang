@@ -57,15 +57,17 @@
                                 required
                                 class="rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10"
                             >
+                                <option :value="null">{{'Pilih Dompet' }}</option>
                                 <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">{{ wallet.name }}</option>
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-2 gap-3">
                             <div class="flex flex-col justify-between gap-1">
                                 <label class="text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Tipe</label>
                                 <select
                                     v-model="form.type"
+                                    @change="onTypeChange"
                                     required
                                     class="rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10"
                                 >
@@ -94,8 +96,8 @@
                                     v-model="form.category_id"
                                     class="rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10"
                                 >
-                                    <option :value="null">-</option>
-                                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                                    <option :value="null">{{'Pilih Kategori' }}</option>
+                                    <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                                 </select>
                             </div>
                             <div class="flex flex-col justify-between gap-1">
@@ -307,7 +309,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import axios from 'axios';
 
 const transactions = ref([]);
@@ -338,6 +340,17 @@ const form = reactive({
 });
 const formLoading = ref(false);
 const formError = ref('');
+
+const filteredCategories = computed(() => {
+    if (form.type === 'income') {
+        return categories.value.filter(c => c.type === 'income');
+    }
+    return categories.value.filter(c => c.type === 'expense');
+});
+
+const onTypeChange = () => {
+    form.category_id = null;
+};
 
 const fetchTransactions = async (page = 1) => {
     loading.value = true;

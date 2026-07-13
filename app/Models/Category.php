@@ -14,10 +14,28 @@ class Category extends Model
         'name',
         'icon',
         'color',
+        'type',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => 'string',
+        ];
+    }
 
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function scopeExpense($query)
+    {
+        return $query->where('type', 'expense');
+    }
+
+    public function scopeIncome($query)
+    {
+        return $query->where('type', 'income');
     }
 }

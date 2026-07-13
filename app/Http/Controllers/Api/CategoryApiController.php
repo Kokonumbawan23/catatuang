@@ -10,7 +10,13 @@ class CategoryApiController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = Category::all();
+        $query = Category::query();
+
+        if (request()->has('type') && in_array(request('type'), ['expense', 'income'])) {
+            $query->where('type', request('type'));
+        }
+
+        $categories = $query->get();
 
         return response()->json([
             'data' => $categories,

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->enum('type', ['Expense', 'Income', 'Both'])->default('Expense')->after('color');
+            $table->string('type')->default('expense')->after('color');
         });
     }
 
