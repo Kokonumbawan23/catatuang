@@ -11,7 +11,6 @@ touch database/database.sqlite
 echo "✨ Optimizing Laravel configuration & routes..."
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 
 # 3. Run database migrations and seeds safely
 echo "🗄️ Running database migrations..."
