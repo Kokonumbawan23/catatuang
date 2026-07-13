@@ -11,7 +11,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="CatatUang">
 
-        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
         <title>{{ config('app.name', 'CatatUang') }} - SPA</title>
