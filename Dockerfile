@@ -2,61 +2,50 @@
 # Stage 1 - Frontend (Vite)
 # =========================
 FROM node:22-alpine AS frontend
+
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm ci
+
+RUN npm install
+
 COPY . .
+
 RUN npm run build
 
-# =========================
-# Stage 2 - PHP / Laravel (Production)
-# =========================
-FROM dunglas/frankenphp:1.4-php8.4-alpine AS runner
 
-# Install system dependencies & PHP extensions needed for SQLite
-RUN apk add --no-cache \
+# =========================
+# Stage 2 - PHP / Laravel
+# =========================
+FROM php:8.4-cli
+
+RUN apt-get update && apt-get install -y \
     git \
     unzip \
     zip \
-    bash \
-    gnu-libiconv
+    libzip-dev \
+    libsqlite3-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo pdo_sqlite zip \
+    && docker-php-ext-enable pdo_sqlite \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN install-php-extensions \
-    pdo_sqlite \
-    zip \
-    opcache \
-    intl
-
-# Get modern composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copy application source files
 COPY . .
 
-# Copy compiled assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Production composer installation
-ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install \
     --no-dev \
-    --optimize-autoloader \
-    --no-interaction \
-    --no-progress
+    --optimize-autoloader
 
-# Set correct folder permissions for Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN php artisan config:cache \
+    && php artisan route:cache
 
-# ⚡ CRITICAL RAILWAY ADJUSTMENTS ⚡
-ENV SERVER_NAME=":80" 
-ENV FRANKENPHP_CONFIG=""
-
-# Native inline execution to completely bypass script line-ending bugs
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate --force && \
-    php artisan db:seed --force && \
-    exec frankenphp php-server --port ${PORT:-80} --root public/
+CMD php artisan migrate --force \
+&& php artisan db:seed --force \
+&& php artisan serve --host=0.0.0.0 --port=$PORT
