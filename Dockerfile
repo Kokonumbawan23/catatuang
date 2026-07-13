@@ -42,10 +42,8 @@ WORKDIR /app
 # Copy application source files
 COPY . .
 
-# Copy the compiled Vite assets directly from Stage 1
-COPY --from=frontend /app/public/build ./public/build
-# Copy PWA assets if they were output directly to public/ by outDir configuration
-COPY --from=frontend /app/public/manifest.webmanifest ./public/manifest.webmanifest
+# 🔥 FIXED: Safely sync all built assets out of the public folder at once
+COPY --from=frontend /app/public/ ./public/
 
 # Run production-optimized Composer install
 ENV COMPOSER_ALLOW_SUPERUSER=1
