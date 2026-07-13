@@ -12,6 +12,26 @@ app.use(router);
 app.mount('#spa-app');
 
 if ('serviceWorker' in navigator) {
+    const registerSW = async () => {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (newWorker) {
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            window.dispatchEvent(new CustomEvent('pwa-update-available'));
+                        }
+                    });
+                }
+            });
+        } catch (err) {
+            console.warn('SW registration failed:', err);
+        }
+    };
+
+    registerSW();
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         window.deferredPrompt = e;
@@ -35,3 +55,11 @@ export function usePWAInstall() {
 
     return { install };
 }
+
+navigator.serviceWorker?.addEventListener('message', (event) => {
+    if (event.data?.type === 'PUSH_NOTIFICATION_CLICKED') {
+        window.dispatchEvent(new CustomEvent('push-notification-clicked', {
+            detail: event.data.data,
+        }));
+    }
+});

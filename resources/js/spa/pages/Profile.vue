@@ -120,6 +120,65 @@
 
             <div class="p-4 sm:p-8 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
+                    <section>
+                        <header>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white">Push Notifications</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Aktifkan notifikasi push untuk menerima alert limit saldo di perangkat Anda.</p>
+                        </header>
+
+                        <div class="mt-6 space-y-4">
+                            <div v-if="!pushSupported" class="p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-400 dark:border-amber-600 rounded-md">
+                                <p class="text-sm text-amber-700 dark:text-amber-300">Push notifications tidak didukung oleh browser ini.</p>
+                            </div>
+                            <div v-else class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Status Notifikasi</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ notificationPermission }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        v-if="!pushSubscribed && notificationPermission === 'granted'"
+                                        @click="enablePush"
+                                        :disabled="pushLoading"
+                                        class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition"
+                                    >
+                                        Aktifkan
+                                    </button>
+                                    <button
+                                        v-else-if="pushSubscribed"
+                                        @click="disablePush"
+                                        :disabled="pushLoading"
+                                        class="inline-flex items-center px-3 py-1.5 bg-red-600 border border-transparent rounded-md text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 transition"
+                                    >
+                                        Nonaktifkan
+                                    </button>
+                                    <button
+                                        v-else
+                                        @click="requestPermission"
+                                        :disabled="pushLoading"
+                                        class="inline-flex items-center px-3 py-1.5 bg-gray-600 border border-transparent rounded-md text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition"
+                                    >
+                                        Izinkan
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-if="pushSubscribed" class="flex items-center gap-2">
+                                <button
+                                    @click="testPush"
+                                    :disabled="testLoading"
+                                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50"
+                                >
+                                    Kirim Notifikasi Test
+                                </button>
+                                <p v-if="testSuccess" class="text-xs text-green-600 dark:text-green-400">Notifikasi terkirim!</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
                     <section class="space-y-6">
                         <header>
                             <h2 class="text-lg font-medium text-gray-900 dark:text-white">Delete Account</h2>
@@ -190,9 +249,11 @@ import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { usePushNotification } from '../composables/usePushNotification';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { isSupported, permission, isSubscribed, subscribe, unsubscribe, testNotification } = usePushNotification();
 
 const profileForm = reactive({
     name: '',
@@ -218,6 +279,57 @@ const deleteLoading = ref(false);
 const profileSuccess = ref(false);
 const passwordSuccess = ref(false);
 const showDeleteModal = ref(false);
+
+const pushSupported = isSupported;
+const notificationPermission = permission;
+const pushSubscribed = isSubscribed;
+const pushLoading = ref(false);
+const testLoading = ref(false);
+const testSuccess = ref(false);
+
+const requestPermission = async () => {
+    if (!('Notification' in window)) return;
+    const result = await Notification.requestPermission();
+    if (result === 'granted') {
+        await enablePush();
+    }
+};
+
+const enablePush = async () => {
+    pushLoading.value = true;
+    try {
+        await subscribe();
+    } catch (error) {
+        console.error('Failed to enable push:', error);
+    } finally {
+        pushLoading.value = false;
+    }
+};
+
+const disablePush = async () => {
+    pushLoading.value = true;
+    try {
+        await unsubscribe();
+    } catch (error) {
+        console.error('Failed to disable push:', error);
+    } finally {
+        pushLoading.value = false;
+    }
+};
+
+const testPush = async () => {
+    testLoading.value = true;
+    testSuccess.value = false;
+    try {
+        await testNotification();
+        testSuccess.value = true;
+        setTimeout(() => { testSuccess.value = false; }, 3000);
+    } catch (error) {
+        console.error('Failed to send test notification:', error);
+    } finally {
+        testLoading.value = false;
+    }
+};
 
 const fetchProfile = async () => {
     try {

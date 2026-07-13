@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\ProfileApiController;
+use App\Http\Controllers\Api\PushApiController;
 use App\Http\Controllers\Api\RecurringTransactionApiController;
 use App\Http\Controllers\Api\TransactionApiController;
 use App\Http\Controllers\Api\WalletApiController;
@@ -51,4 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ]);
     Route::patch('/recurring-transactions/{recurringTransaction}/toggle', [RecurringTransactionApiController::class, 'toggleActive'])->name('api.recurring-transactions.toggle');
     Route::get('/categories', [CategoryApiController::class, 'index'])->name('api.categories.index');
+    Route::post('/push/subscribe', [PushApiController::class, 'subscribe'])->name('api.push.subscribe');
+    Route::delete('/push/unsubscribe', [PushApiController::class, 'unsubscribe'])->name('api.push.unsubscribe');
+    Route::post('/push/test', [PushApiController::class, 'test'])->name('api.push.test');
 });

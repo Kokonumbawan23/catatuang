@@ -17,10 +17,12 @@ export default defineConfig({
         }),
         vue(),
         VitePWA({
-            registerType: 'autoUpdate',
+            strategies: 'injectManifest',
+            srcDir: 'resources/js/spa',
+            filename: 'sw.js',
             outDir: 'public',
-            devOptions: {
-                enabled: true,
+            injectManifest: {
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
             },
             manifest: {
                 name: 'CatatUang - Personal Finance Tracker',
@@ -48,32 +50,6 @@ export default defineConfig({
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'maskable',
-                    },
-                ],
-            },
-            workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-                runtimeCaching: [
-                    {
-                        urlPattern: /^https:\/\/fonts\.bunny\.net\/.*/i,
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'google-fonts-cache',
-                            expiration: {
-                                maxEntries: 10,
-                                maxAgeSeconds: 60 * 60 * 24 * 365,
-                            },
-                            cacheableResponse: {
-                                statuses: [0, 200],
-                            },
-                        },
-                    },
-                    {
-                        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-                        handler: 'StaleWhileRevalidate',
-                        options: {
-                            cacheName: 'google-fonts-stylesheets',
-                        },
                     },
                 ],
             },

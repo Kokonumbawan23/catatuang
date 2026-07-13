@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Services\ActivityLogger;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,8 @@ use Illuminate\Support\Facades\DB;
 class TransactionApiController extends Controller
 {
     public function __construct(
-        private ActivityLogger $logger
+        private ActivityLogger $logger,
+        private PushNotificationService $pushService
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -112,6 +114,9 @@ class TransactionApiController extends Controller
             );
         });
 
+        $wallet->refresh();
+        $this->pushService->checkAndNotify($wallet);
+
         return response()->json([
             'message' => 'Transaksi berhasil dicatat.',
         ], 201);
@@ -143,6 +148,9 @@ class TransactionApiController extends Controller
             return response()->json(['message' => 'Dompet tidak valid.'], 422);
         }
 
+        $oldWallet = $transaction->wallet;
+        $walletSwitched = $oldWallet->id !== $wallet->id;
+
         DB::transaction(function () use ($validated, $transaction, $user) {
             $oldWallet = $transaction->wallet;
             $oldAmount = $transaction->amount;
@@ -169,6 +177,14 @@ class TransactionApiController extends Controller
             $this->logger->transactionUpdated($user->id, $transaction->id);
         });
 
+        $oldWallet->refresh();
+        $this->pushService->checkAndNotify($oldWallet);
+
+        if ($walletSwitched) {
+            $wallet->refresh();
+            $this->pushService->checkAndNotify($wallet);
+        }
+
         return response()->json([
             'message' => 'Transaksi berhasil diperbarui.',
         ]);
@@ -180,6 +196,7 @@ class TransactionApiController extends Controller
 
         $userId = Auth::id();
         $transactionId = $transaction->id;
+        $wallet = $transaction->wallet;
 
         DB::transaction(function () use ($transaction) {
             $wallet = $transaction->wallet;
@@ -195,6 +212,9 @@ class TransactionApiController extends Controller
         });
 
         $this->logger->transactionDeleted($userId, $transactionId);
+
+        $wallet->refresh();
+        $this->pushService->checkAndNotify($wallet);
 
         return response()->json([
             'message' => 'Transaksi berhasil dihapus.',
