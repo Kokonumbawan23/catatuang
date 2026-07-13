@@ -23,18 +23,18 @@ class ExportTest extends TestCase
 
     public function test_csv_export_returns_200_status(): void
     {
-        $this->actingAs($this->user);
+        $token = $this->user->createToken('test')->plainTextToken;
 
         Transaction::factory()->count(3)->create([
             'user_id' => $this->user->id,
             'transaction_date' => now()->format('Y-m-d'),
         ]);
 
-        $response = $this->get(route('transactions.export', [
-            'format' => 'csv',
-            'month' => now()->month,
-            'year' => now()->year,
-        ]));
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson(route('api.transactions.export', [
+                'month' => now()->month,
+                'year' => now()->year,
+            ]));
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
@@ -42,7 +42,7 @@ class ExportTest extends TestCase
 
     public function test_csv_export_contains_transaction_data(): void
     {
-        $this->actingAs($this->user);
+        $token = $this->user->createToken('test')->plainTextToken;
 
         $category = Category::factory()->expense()->create(['name' => 'Makanan']);
         Transaction::factory()->create([
@@ -54,11 +54,11 @@ class ExportTest extends TestCase
             'transaction_date' => now()->format('Y-m-d'),
         ]);
 
-        $response = $this->get(route('transactions.export', [
-            'format' => 'csv',
-            'month' => now()->month,
-            'year' => now()->year,
-        ]));
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson(route('api.transactions.export', [
+                'month' => now()->month,
+                'year' => now()->year,
+            ]));
 
         $content = $response->streamedContent();
         $this->assertStringContainsString('Makanan', $content);
@@ -67,18 +67,17 @@ class ExportTest extends TestCase
 
     public function test_unauthenticated_user_cannot_export(): void
     {
-        $response = $this->get(route('transactions.export', [
-            'format' => 'csv',
+        $response = $this->getJson(route('api.transactions.export', [
             'month' => now()->month,
             'year' => now()->year,
         ]));
 
-        $response->assertRedirect('/login');
+        $response->assertStatus(401);
     }
 
     public function test_csv_export_filters_by_type(): void
     {
-        $this->actingAs($this->user);
+        $token = $this->user->createToken('test')->plainTextToken;
 
         $expenseCategory = Category::factory()->expense()->create();
         $incomeCategory = Category::factory()->income()->create();
@@ -97,27 +96,14 @@ class ExportTest extends TestCase
             'transaction_date' => now()->format('Y-m-d'),
         ]);
 
-        $response = $this->get(route('transactions.export', [
-            'format' => 'csv',
-            'month' => now()->month,
-            'year' => now()->year,
-            'type' => 'income',
-        ]));
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson(route('api.transactions.export', [
+                'month' => now()->month,
+                'year' => now()->year,
+                'type' => 'income',
+            ]));
 
         $content = $response->streamedContent();
         $this->assertStringContainsString('Pemasukan', $content);
-    }
-
-    public function test_invalid_export_format_returns_404(): void
-    {
-        $this->actingAs($this->user);
-
-        $response = $this->get(route('transactions.export', [
-            'format' => 'invalid',
-            'month' => now()->month,
-            'year' => now()->year,
-        ]));
-
-        $response->assertStatus(404);
     }
 }
