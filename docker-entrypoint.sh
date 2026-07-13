@@ -17,17 +17,6 @@ echo "🗄️ Running database migrations..."
 php artisan migrate --force
 php artisan db:seed --force
 
-# 4. Generate Caddyfile for FrankenPHP with dynamic port
-echo "⚡ Generating Caddyfile..."
-cat > /etc/caddy/Caddyfile << 'CADDYFILE'
-{
-    SERVER_NAME
-}
+export SERVER_NAME=":${PORT:-80}"
 
-root * /app/public
-php_server
-CADDYFILE
-
-# 5. Start the production server (FrankenPHP)
-echo "⚡ Starting web server..."
-exec frankenphp run
+exec frankenphp php-server --root public/
