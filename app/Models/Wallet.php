@@ -15,6 +15,7 @@ class Wallet extends Model
         'user_id',
         'name',
         'balance',
+        'balance_limit',
     ];
 
     protected function casts(): array

@@ -2,79 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wallet;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class WalletController extends Controller
 {
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        $wallets = Auth::user()->wallets()
-            ->withCount('transactions')
-            ->orderBy('name')
-            ->get();
-
-        return view('wallets.index', [
-            'wallets' => $wallets,
-        ]);
+        return redirect()->route('spa');
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('wallets.create');
+        return redirect()->route('spa');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'balance' => ['required', 'numeric', 'min:0', 'max:99999999999999'],
-        ]);
-
-        $validated['user_id'] = Auth::id();
-
-        Wallet::create($validated);
-
-        return redirect()->route('wallets.index')->with('success', 'Dompet berhasil dibuat.');
+        return redirect()->route('spa');
     }
 
-    public function show(Wallet $wallet): RedirectResponse
+    public function show(): RedirectResponse
     {
-        return redirect()->route('wallets.index');
+        return redirect()->route('spa');
     }
 
-    public function edit(Wallet $wallet): View
+    public function edit(): RedirectResponse
     {
-        $this->authorize('update', $wallet);
-
-        return view('wallets.edit', [
-            'wallet' => $wallet,
-        ]);
+        return redirect()->route('spa');
     }
 
-    public function update(Request $request, Wallet $wallet): RedirectResponse
+    public function update(): RedirectResponse
     {
-        $this->authorize('update', $wallet);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'balance' => ['required', 'numeric', 'min:0', 'max:99999999999999'],
-        ]);
-
-        $wallet->update($validated);
-
-        return redirect()->route('wallets.index')->with('success', 'Dompet berhasil diperbarui.');
+        return redirect()->route('spa');
     }
 
-    public function destroy(Wallet $wallet): RedirectResponse
+    public function destroy(): RedirectResponse
     {
-        $this->authorize('delete', $wallet);
-
-        $wallet->delete();
-
-        return redirect()->route('wallets.index')->with('success', 'Dompet berhasil dihapus.');
+        return redirect()->route('spa');
     }
 }

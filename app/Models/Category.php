@@ -10,9 +10,32 @@ class Category extends Model
 {
     use HasFactory;
 
-    #[Fillable(['name', 'icon', 'color'])]
-    public function expenses(): HasMany
+    protected $fillable = [
+        'name',
+        'icon',
+        'color',
+        'type',
+    ];
+
+    protected function casts(): array
     {
-        return $this->hasMany(Expense::class);
+        return [
+            'type' => 'string',
+        ];
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function scopeExpense($query)
+    {
+        return $query->where('type', 'expense');
+    }
+
+    public function scopeIncome($query)
+    {
+        return $query->where('type', 'income');
     }
 }

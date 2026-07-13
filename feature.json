@@ -1,0 +1,111 @@
+{
+    "project_name": "CatatUang",
+    "sprint": "Multi-Wallet & Analytics Dashboard",
+    "features": [
+      {
+        "id": "FEAT-001",
+        "name": "Multi-Wallet & Transaction Consolidation Backend",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Modul Expense lama dihapus total dari route, model, dan view.",
+          "Skema DB PostgreSQL mendukung relasi User -> many Wallets -> many Transactions.",
+          "Setiap transaksi baru berhasil divalidasi kepemilikannya (wallet_id milik auth()->user()).",
+          "Setiap mutasi transaksi otomatis memperbarui nominal balance di tabel wallets menggunakan DB::transaction()."
+        ]
+      },
+      {
+        "id": "FEAT-002",
+        "name": "Web-First Analytics UI & Context Switcher",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Layout dashboard horizontal memanfaatkan lebar layar max-w-7xl tanpa sidebar (Breeze theme).",
+          "Tersedia dropdown selector wallet untuk memuat data ringkasan finansial (In, Out, Saldo) secara dinamis.",
+          "Form input manual (kiri) dan tabel riwayat (kanan) tampil berdampingan secara horizontal pada layar desktop."
+        ]
+      },
+      {
+        "id": "FEAT-003",
+        "name": "Automated Security Test Integration",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Memiliki automated test PHPUnit untuk memverifikasi isolasi data wallet antar-user (mencegah data leakage).",
+          "Memiliki test untuk memastikan sistem menolak nominal transaksi bernilai 0 atau negatif."
+        ],
+        "evidence": "tests/Feature/WalletSecurityTest.php - 9 tests covering wallet isolation and amount validation"
+      },
+      {
+        "id": "FEAT-004",
+        "name": "Input UI Fixing",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Form input yang berhubungan dengan keuangan memiliki placeholder berawalan 'Rp' dan format currency IDR. (Perhatikan precision seperti 200000 ditulis Rp 200.000)",
+          "UI Dropdown Selector dan Modal (seperti peringatan hapus data) dirubah mengikuti dengan tema laravel breeze, tidak menggunakan bawaan browser.",
+          "Pewarnaan pada card wallet dibuat dengan kombinasi gradient warna yang lebih bervariasi, tidak monoton menggunakan warna biru dan ungu."
+        ],
+        "evidence": "resources/js/app.js, resources/views/transactions/create.blade.php, transactions/edit.blade.php, transactions/index.blade.php, wallets/create.blade.php, wallets/edit.blade.php, wallets/index.blade.php - JavaScript IDR auto-formatting (Rp X.XXX), Rp placeholder, Breeze dropdowns/modals, varied wallet gradients"
+      },
+      {
+        "id": "FIX-001",
+        "name": "Dropdown Selector UI Fix",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Dropdown selector di seluruh aplikasi tidak menggunakan style bawaan browser, melainkan mengikuti tema laravel breeze. (seperti wallet-select.blade.php)",
+          "Dropdown selector harus responsif dan mudah digunakan di berbagai ukuran layar.",
+          "Wallet Select dropdown dapat memilih wallet yang berbeda dan memuat data ringkasan finansial (In, Out, Saldo) secara dinamis."
+        ],
+        "evidence": "resources/views/components/select.blade.php - reusable Breeze-styled select component; resources/views/components/wallet-select.blade.php - Alpine.js custom dropdown for wallet switcher with hidden input for form submission; All native <select> elements replaced with x-select or x-wallet-select"
+      },
+{
+        "id": "FEAT-005",
+        "name": "Recurring Transactions",
+        "status": "completed",
+        "acceptance_criteria": [
+          "User dapat membuat, mengedit, dan menghapus recurring transaction.",
+          "Recurring transaction mendukung frekuensi daily, weekly, monthly, yearly dengan JSON schedule_config.",
+          "Sistem memproses recurring transactions via artisan command yang dijadwalkan (ProcessRecurringTransactions).",
+          "Wallet balance diperbarui otomatis saat recurring transaction berhasil diproses.",
+          "Recurring transaction tidak tereksekusi jika di luar date range (start_date/end_date) atau is_active=false.",
+          "Policy memastikan user hanya bisa mengakses recurring transaction miliknya sendiri."
+        ],
+        "evidence": "database/migrations/2026_06_23_000001_create_recurring_transactions_table.php; app/Models/RecurringTransaction.php; app/Policies/RecurringTransactionPolicy.php; app/Services/RecurringTransactionScheduleService.php; app/Console/Commands/ProcessRecurringTransactions.php; app/Http/Requests/StoreRecurringTransactionRequest.php; app/Http/Requests/UpdateRecurringTransactionRequest.php; app/Http/Controllers/RecurringTransactionController.php; resources/views/recurring-transactions/*.blade.php; database/factories/RecurringTransactionFactory.php; tests/Feature/RecurringTransactionTest.php (15 tests - all passing)"
+      },
+      {
+        "id": "FEAT-006",
+        "name": "Dark Mode Toggle",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Dark mode toggle button available in navigation",
+          "Dark mode preference persisted in localStorage",
+          "All pages respect dark mode preference"
+        ],
+        "evidence": "resources/views/components/dark-mode-toggle.blade.php; resources/views/layouts/app.blade.php; resources/views/layouts/navigation.blade.php; tailwind.config.js (darkMode: 'class')"
+      },
+      {
+        "id": "FEAT-007",
+        "name": "SPA Conversion - Backend API Layer",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Laravel Sanctum installed for API authentication",
+          "HasApiTokens trait added to User model",
+          "API Controllers created (Wallet, Transaction, RecurringTransaction, Dashboard, Category)",
+          "API routes properly namespaced to avoid conflict with web routes",
+          "API Authentication endpoints (login, register, logout, me)"
+        ],
+        "evidence": "app/Models/User.php (HasApiTokens); app/Http/Controllers/Api/*.php (6 API controllers including AuthApiController); routes/api.php (Sanctum configured, api.* namespaced routes); app/Http/Requests/StoreWalletRequest.php; app/Http/Requests/UpdateWalletRequest.php"
+      },
+      {
+        "id": "FEAT-008",
+        "name": "Vue 3 SPA Frontend",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Vue 3 SPA with Pinia state management and Vue Router",
+          "Auth pages: Login and Register with form validation",
+          "Dashboard page with wallet selector, 3-col summary cards, recent transactions",
+          "Wallets page with gradient cards, create/edit modal, delete confirmation modal",
+          "Transactions page with 3-col layout (form + summary + table), inline CRUD, delete modal",
+          "Blade template parity: no Alpine.js x-show, proper Vue transitions for modals"
+        ],
+        "evidence": "resources/js/spa/ - App.vue, router.js, stores/auth.js; pages/ - Login.vue (84 lines), Register.vue (115 lines), Dashboard.vue (131 lines), Wallets.vue (294 lines), Transactions.vue (446 lines)"
+      }
+    ]
+  }
