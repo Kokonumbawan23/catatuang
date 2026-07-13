@@ -17,6 +17,17 @@ echo "🗄️ Running database migrations..."
 php artisan migrate --force
 php artisan db:seed --force
 
-# 4. Start the production server (FrankenPHP) on the dynamic Railway port
+# 4. Generate Caddyfile for FrankenPHP with dynamic port
+echo "⚡ Generating Caddyfile..."
+cat > /etc/caddy/Caddyfile << 'CADDYFILE'
+{
+    SERVER_NAME
+}
+
+root * /app/public
+php_server
+CADDYFILE
+
+# 5. Start the production server (FrankenPHP)
 echo "⚡ Starting web server..."
-exec frankenphp php-server --port ${PORT:-80} --root public/
+exec frankenphp run
