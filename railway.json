@@ -9,7 +9,7 @@
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "startCommand": "echo \"APP_KEY=base64:kYSusrJyMWq0cudFydQ7Vxh3INHIxlHBDUL16SoCpOU=\" > .env && php artisan migrate --force && php artisan serve --port=$PORT"
+    "startCommand": "php artisan migrate --force && php artisan serve --port=$PORT"
   },
   "database": {
     "default": "sqlite"
