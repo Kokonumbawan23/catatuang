@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile', [ProfileApiController::class, 'destroy'])->name('api.profile.destroy');
 
     Route::get('/dashboard', [DashboardApiController::class, 'index'])->name('api.dashboard');
+    Route::get('/transactions/export', [TransactionApiController::class, 'export'])->name('api.transactions.export');
     Route::apiResource('wallets', WalletApiController::class)->names([
         'index' => 'api.wallets.index',
         'store' => 'api.wallets.store',
@@ -41,7 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
         'update' => 'api.transactions.update',
         'destroy' => 'api.transactions.destroy',
     ]);
-    Route::get('/transactions/export', [TransactionApiController::class, 'export'])->name('api.transactions.export');
     Route::apiResource('recurring-transactions', RecurringTransactionApiController::class)->names([
         'index' => 'api.recurring-transactions.index',
         'store' => 'api.recurring-transactions.store',

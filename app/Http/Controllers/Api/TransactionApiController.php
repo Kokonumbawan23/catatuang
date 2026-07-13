@@ -104,6 +104,17 @@ class TransactionApiController extends Controller
         ], 201);
     }
 
+    public function show(Transaction $transaction): JsonResponse
+    {
+        $this->authorize('view', $transaction);
+
+        $transaction->load(['category', 'wallet']);
+
+        return response()->json([
+            'data' => $transaction,
+        ]);
+    }
+
     public function update(UpdateTransactionRequest $request, Transaction $transaction): JsonResponse
     {
         $this->authorize('update', $transaction);
@@ -173,26 +184,43 @@ class TransactionApiController extends Controller
         $user = $request->user();
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
-        $type = $request->input('type');
+        $walletId = $request->input('wallet_id');
 
         $query = $user->transactions()
-            ->with('category')
+            ->with(['category', 'wallet'])
             ->whereMonth('transaction_date', $month)
             ->whereYear('transaction_date', $year);
 
-        if ($type) {
-            $query->where('type', strtolower($type));
+        if ($walletId) {
+            $query->where('wallet_id', $walletId);
         }
 
         $transactions = $query->orderBy('transaction_date', 'desc')->get();
 
-        return response()->json([
-            'data' => $transactions,
-            'meta' => [
-                'month' => $month,
-                'year' => $year,
-                'type' => $type,
-            ],
-        ]);
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="transactions_'.$year.'_'.$month.'.csv"',
+        ];
+
+        $callback = function () use ($transactions) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Tanggal', 'Dompet', 'Kategori', 'Tipe', 'Nominal', 'Keterangan']);
+
+            foreach ($transactions as $t) {
+                fputcsv($handle, [
+                    $t->transaction_date->format('Y-m-d'),
+                    $t->wallet->name ?? '-',
+                    $t->category->name ?? '-',
+                    $t->type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                    number_format($t->amount, 0, ',', '.'),
+                    $t->description ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->streamDownload($callback, 'transactions_'.$year.'_'.$month.'.csv', $headers);
     }
 }

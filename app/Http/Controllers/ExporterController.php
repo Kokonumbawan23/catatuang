@@ -89,11 +89,15 @@ class ExporterController extends Controller
         $year = (int) $request->input('year', now()->year);
         $type = $request->input('type');
 
-        $transactions = $this->buildQuery($request)->lazy();
+        $query = $this->buildQuery($request);
+
+        $totalIncome = (clone $query)->where('type', 'Income')->sum('amount');
+        $totalExpense = (clone $query)->where('type', 'Expense')->sum('amount');
+        $transactions = $query->get();
 
         $filename = $this->filename($year, $month, $type, 'csv');
 
-        return response()->streamDownload(function () use ($transactions) {
+        return response()->streamDownload(function () use ($transactions, $totalIncome, $totalExpense) {
             $headers = ['No', 'Tanggal', 'Tipe', 'Kategori', 'Nominal', 'Catatan'];
 
             echo $this->csvLine($headers);
@@ -109,9 +113,6 @@ class ExporterController extends Controller
                     $transaction->description ?? '',
                 ]);
             }
-
-            $totalIncome = $transactions->where('type', 'Income')->sum('amount');
-            $totalExpense = $transactions->where('type', 'Expense')->sum('amount');
 
             echo $this->csvLine([]);
             echo $this->csvLine(['', '', '', 'Total Pemasukan', number_format($totalIncome, 0, ',', '.')]);
