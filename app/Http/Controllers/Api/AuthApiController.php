@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthApiController extends Controller
 {
+    public function __construct(
+        private ActivityLogger $logger
+    ) {}
+
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -23,14 +28,16 @@ class AuthApiController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
+            $this->logger->authFailure($request->email, 'The provided credentials are incorrect.');
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         $deviceName = $request->string('device_name', 'SPA');
-
         $token = $user->createToken($deviceName)->plainTextToken;
+
+        $this->logger->authSuccess($user->id, $user->email, $deviceName);
 
         return response()->json([
             'user' => $user,
@@ -46,20 +53,26 @@ class AuthApiController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        $deviceName = $request->string('device_name', 'SPA');
+            $deviceName = $request->string('device_name', 'SPA');
+            $token = $user->createToken($deviceName)->plainTextToken;
 
-        $token = $user->createToken($deviceName)->plainTextToken;
+            $this->logger->registrationSuccess($user->id, $user->email);
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ], 201);
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+            ], 201);
+        } catch (\Throwable $e) {
+            $this->logger->registrationFailure($request->email, $e->getMessage());
+            throw $e;
+        }
     }
 
     public function logout(Request $request): JsonResponse

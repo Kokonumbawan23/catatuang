@@ -7,12 +7,17 @@ use App\Http\Requests\StoreRecurringTransactionRequest;
 use App\Http\Requests\UpdateRecurringTransactionRequest;
 use App\Models\Category;
 use App\Models\RecurringTransaction;
+use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RecurringTransactionApiController extends Controller
 {
+    public function __construct(
+        private ActivityLogger $logger
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -43,10 +48,12 @@ class RecurringTransactionApiController extends Controller
     {
         $user = Auth::user();
 
-        RecurringTransaction::create([
+        $recurring = RecurringTransaction::create([
             ...$request->validated(),
             'user_id' => $user->id,
         ]);
+
+        $this->logger->recurringTransactionCreated($user->id, $recurring->id, $recurring->type);
 
         return response()->json([
             'message' => 'Transaksi berulang berhasil dibuat.',
@@ -58,6 +65,8 @@ class RecurringTransactionApiController extends Controller
         $this->authorize('update', $recurringTransaction);
 
         $recurringTransaction->update($request->validated());
+
+        $this->logger->recurringTransactionUpdated(Auth::id(), $recurringTransaction->id);
 
         return response()->json([
             'message' => 'Transaksi berulang berhasil diperbarui.',
@@ -72,6 +81,12 @@ class RecurringTransactionApiController extends Controller
             'is_active' => ! $recurringTransaction->is_active,
         ]);
 
+        $this->logger->recurringTransactionToggled(
+            Auth::id(),
+            $recurringTransaction->id,
+            $recurringTransaction->is_active
+        );
+
         return response()->json([
             'data' => $recurringTransaction,
             'message' => $recurringTransaction->is_active ? 'Transaksi berulang diaktifkan.' : 'Transaksi berulang dinonaktifkan.',
@@ -82,7 +97,10 @@ class RecurringTransactionApiController extends Controller
     {
         $this->authorize('delete', $recurringTransaction);
 
+        $recurringId = $recurringTransaction->id;
         $recurringTransaction->delete();
+
+        $this->logger->recurringTransactionDeleted(Auth::id(), $recurringId);
 
         return response()->json([
             'message' => 'Transaksi berulang berhasil dihapus.',

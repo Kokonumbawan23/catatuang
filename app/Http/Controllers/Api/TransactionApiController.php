@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionApiController extends Controller
 {
+    public function __construct(
+        private ActivityLogger $logger
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -82,14 +87,14 @@ class TransactionApiController extends Controller
         $wallet = Wallet::findOrFail($validated['wallet_id']);
 
         if ($wallet->user_id !== $user->id) {
+            $this->logger->unauthorizedAccess($user->id, 'wallet:'.$validated['wallet_id'], 'create_transaction');
+
             return response()->json(['message' => 'Dompet tidak valid.'], 422);
         }
 
-        DB::transaction(function () use ($validated, $user) {
-            $wallet = Wallet::findOrFail($validated['wallet_id']);
-
+        DB::transaction(function () use ($validated, $user, $wallet) {
             $validated['user_id'] = $user->id;
-            Transaction::create($validated);
+            $transaction = Transaction::create($validated);
 
             $amount = $validated['amount'];
             if ($validated['type'] === 'income') {
@@ -97,6 +102,14 @@ class TransactionApiController extends Controller
             } else {
                 $wallet->decrement('balance', $amount);
             }
+
+            $this->logger->transactionCreated(
+                $user->id,
+                $transaction->id,
+                $validated['type'],
+                $amount,
+                $wallet->id
+            );
         });
 
         return response()->json([
@@ -125,10 +138,12 @@ class TransactionApiController extends Controller
         $wallet = Wallet::findOrFail($validated['wallet_id']);
 
         if ($wallet->user_id !== $user->id) {
+            $this->logger->unauthorizedAccess($user->id, 'transaction:'.$transaction->id, 'update');
+
             return response()->json(['message' => 'Dompet tidak valid.'], 422);
         }
 
-        DB::transaction(function () use ($validated, $transaction) {
+        DB::transaction(function () use ($validated, $transaction, $user) {
             $oldWallet = $transaction->wallet;
             $oldAmount = $transaction->amount;
             $oldType = $transaction->type;
@@ -150,6 +165,8 @@ class TransactionApiController extends Controller
             } else {
                 $newWallet->decrement('balance', $newAmount);
             }
+
+            $this->logger->transactionUpdated($user->id, $transaction->id);
         });
 
         return response()->json([
@@ -160,6 +177,9 @@ class TransactionApiController extends Controller
     public function destroy(Transaction $transaction): JsonResponse
     {
         $this->authorize('delete', $transaction);
+
+        $userId = Auth::id();
+        $transactionId = $transaction->id;
 
         DB::transaction(function () use ($transaction) {
             $wallet = $transaction->wallet;
@@ -173,6 +193,8 @@ class TransactionApiController extends Controller
 
             $transaction->delete();
         });
+
+        $this->logger->transactionDeleted($userId, $transactionId);
 
         return response()->json([
             'message' => 'Transaksi berhasil dihapus.',
