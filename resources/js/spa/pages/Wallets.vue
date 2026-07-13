@@ -1,5 +1,5 @@
 <template>
-    <div class="py-10 bg-gray-100 dark:bg-slate-900 min-h-screen">
+    <div class="py-10 bg-gray-100 dark:bg-slate-900 min-h-screen pb-24 sm:pb-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700">
@@ -56,6 +56,9 @@
                             <div class="mt-6">
                                 <p class="text-lg font-semibold">{{ wallet.name }}</p>
                                 <p class="text-xs opacity-75 mt-1">{{ wallet.transactions_count || 0 }} transaksi</p>
+                                <p v-if="wallet.balance_limit && wallet.balance_limit > 0" class="text-xs opacity-60 mt-1">
+                                    Batas Bawah: Rp {{ formatNumber(wallet.balance_limit) }}
+                                </p>
                             </div>
                             <div class="mt-4 pt-4 border-t border-white/20 flex justify-end gap-3">
                                 <button @click="editWallet(wallet)" class="text-sm opacity-75 hover:opacity-100 font-medium">Edit</button>
@@ -149,6 +152,19 @@
                                                 placeholder="0"
                                             />
                                         </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                                Batas Bawah Saldo (Rp) <span class="text-gray-400 font-normal normal-case">- opsional</span>
+                                            </label>
+                                            <input
+                                                v-model.number="walletForm.balance_limit"
+                                                type="number"
+                                                min="0"
+                                                class="block w-full rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-3"
+                                                placeholder="Contoh: 100000"
+                                            />
+                                            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Notifikasi akan muncul saat saldo hampir mencapai atau di bawah batas ini.</p>
+                                        </div>
                                         <div v-if="formError" class="p-3 bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg">
                                             <p class="text-xs text-red-700 dark:text-red-300">{{ formError }}</p>
                                         </div>
@@ -190,7 +206,7 @@ const showModal = ref(false);
 const showFormModal = ref(false);
 const editingWallet = ref(null);
 const walletToDelete = ref(null);
-const walletForm = ref({ name: '', balance: 0 });
+const walletForm = ref({ name: '', balance: 0, balance_limit: null });
 const formLoading = ref(false);
 const formError = ref('');
 
@@ -216,14 +232,14 @@ const fetchWallets = async () => {
 
 const openCreateModal = () => {
     editingWallet.value = null;
-    walletForm.value = { name: '', balance: 0 };
+    walletForm.value = { name: '', balance: 0, balance_limit: null };
     formError.value = '';
     showFormModal.value = true;
 };
 
 const editWallet = (wallet) => {
     editingWallet.value = wallet;
-    walletForm.value = { name: wallet.name, balance: wallet.balance };
+    walletForm.value = { name: wallet.name, balance: wallet.balance, balance_limit: wallet.balance_limit || null };
     formError.value = '';
     showFormModal.value = true;
 };
@@ -238,7 +254,7 @@ const closeModal = () => {
     showFormModal.value = false;
     editingWallet.value = null;
     walletToDelete.value = null;
-    walletForm.value = { name: '', balance: 0 };
+    walletForm.value = { name: '', balance: 0, balance_limit: null };
     formError.value = '';
 };
 

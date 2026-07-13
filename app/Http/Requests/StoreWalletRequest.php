@@ -16,6 +16,7 @@ class StoreWalletRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'balance' => ['required', 'numeric', 'min:0', 'max:99999999999999'],
+            'balance_limit' => ['nullable', 'numeric', 'min:0', 'max:99999999999999'],
         ];
     }
 }

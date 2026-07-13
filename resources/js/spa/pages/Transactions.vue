@@ -1,5 +1,5 @@
 <template>
-    <div class="py-10 px-4 sm:px-6 lg:px-8">
+    <div class="py-10 px-4 sm:px-6 lg:px-8 pb-24 sm:pb-0">
         <div class="max-w-7xl mx-auto space-y-6">
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700 gap-4">
@@ -160,6 +160,12 @@
                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
                             >
                                 Cari
+                            </button>
+                            <button
+                                @click="exportTransactions"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                            >
+                                Export CSV
                             </button>
                         </div>
                     </div>
@@ -452,6 +458,34 @@ const deleteTransaction = async () => {
 const changePage = (page) => {
     if (page >= 1 && pagination.value && page <= pagination.value.last_page) {
         fetchTransactions(page);
+    }
+};
+
+const exportTransactions = async () => {
+    try {
+        const params = {
+            month: selectedMonth.value,
+            year: selectedYear.value,
+        };
+        if (selectedWalletId.value) {
+            params.wallet_id = selectedWalletId.value;
+        }
+        const response = await axios.get('/api/transactions/export', {
+            params,
+            responseType: 'blob',
+        });
+        const blob = new Blob([response.data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Gagal export:', error);
+        alert('Gagal export transaksi.');
     }
 };
 

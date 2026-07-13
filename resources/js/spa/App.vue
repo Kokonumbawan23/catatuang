@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="pb-16 sm:pb-0">
         <nav v-if="authStore.isAuthenticated" class="bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
@@ -85,18 +85,79 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </nav>
 
-        <main class="min-h-screen bg-gray-100 dark:bg-slate-900">
+        <main class="min-h-screen bg-gray-100 dark:bg-slate-900 mb-16 sm:mb-0">
             <router-view />
         </main>
+
+        <div
+            v-if="showInstallPrompt && authStore.isAuthenticated"
+            class="fixed bottom-20 right-4 z-50 sm:hidden"
+        >
+            <button
+                @click="installPWA"
+                class="flex items-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-lg transition-all duration-200"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                <span class="text-sm font-medium">Install App</span>
+            </button>
+        </div>
+
+        <nav v-if="authStore.isAuthenticated" class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+            <div class="flex justify-around items-center h-16">
+                <router-link
+                    to="/"
+                    class="flex flex-col items-center justify-center flex-1 h-full"
+                    :class="isActive('/') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" :stroke-width="isActive('/') ? '2.2' : '1.8'" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 12a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"/>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Dashboard</span>
+                </router-link>
+                <router-link
+                    to="/transactions"
+                    class="flex flex-col items-center justify-center flex-1 h-full"
+                    :class="isActive('/transactions') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" :stroke-width="isActive('/transactions') ? '2.2' : '1.8'" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Transaksi</span>
+                </router-link>
+                <router-link
+                    to="/recurring"
+                    class="flex flex-col items-center justify-center flex-1 h-full"
+                    :class="isActive('/recurring') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" :stroke-width="isActive('/recurring') ? '2.2' : '1.8'" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Berulang</span>
+                </router-link>
+                <router-link
+                    to="/profile"
+                    class="flex flex-col items-center justify-center flex-1 h-full"
+                    :class="isActive('/profile') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" :stroke-width="isActive('/profile') ? '2.2' : '1.8'" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Profil</span>
+                </router-link>
+            </div>
+        </nav>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from './stores/auth';
 import { useRouter } from 'vue-router';
@@ -107,6 +168,7 @@ const route = useRoute();
 
 const isDark = ref(false);
 const userMenuOpen = ref(false);
+const showInstallPrompt = ref(false);
 
 const isActive = (path) => {
     if (path === '/') return route.path === '/';
@@ -130,10 +192,32 @@ const handleLogout = async () => {
     router.push({ name: 'login' });
 };
 
+const installPWA = async () => {
+    if (!window.deferredPrompt) return;
+    window.deferredPrompt.prompt();
+    const { outcome } = await window.deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+        showInstallPrompt.value = false;
+    }
+    window.deferredPrompt = null;
+};
+
+const handleInstallAvailable = () => {
+    showInstallPrompt.value = true;
+};
+
 onMounted(() => {
     isDark.value = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark.value) {
         document.documentElement.classList.add('dark');
     }
+    window.addEventListener('pwa-install-available', handleInstallAvailable);
+    if (window.deferredPrompt) {
+        showInstallPrompt.value = true;
+    }
+});
+
+onUnmounted(() => {
+    window.removeEventListener('pwa-install-available', handleInstallAvailable);
 });
 </script>

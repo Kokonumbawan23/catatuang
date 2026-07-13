@@ -1,5 +1,5 @@
 <template>
-    <div class="py-10 px-4 sm:px-6 lg:px-8">
+    <div class="py-10 px-4 sm:px-6 lg:px-8 pb-24 sm:pb-0">
         <div class="max-w-7xl mx-auto space-y-6">
 
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700">
@@ -21,6 +21,28 @@
                 </div>
             </div>
 
+            <Transition name="slide-down">
+                <div
+                    v-if="showBalanceAlert && activeWallet && activeWallet.balance_limit"
+                    class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3"
+                >
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-red-800 dark:text-red-200">Peringatan Buffer Habis!</p>
+                        <p class="text-xs text-red-700 dark:text-red-300 mt-0.5">
+                            Buffer saldo Anda sudah habis. Sisa saldo (Rp {{ formatNumber(summary.balance) }}) berada di bawah batas minimum (Rp {{ formatNumber(activeWallet.balance_limit) }}).
+                        </p>
+                    </div>
+                    <button @click="dismissAlert" class="text-red-500 hover:text-red-700 dark:hover:text-red-300 p-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </Transition>
+
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-slate-700 text-center">
                     <div class="p-6 hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition">
@@ -34,6 +56,19 @@
                     <div class="p-6 bg-indigo-50/30 dark:bg-indigo-900/20">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 mb-2">Saldo Dompet Saat Ini</span>
                         <span class="block text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">Rp {{ formatNumber(summary.balance) }}</span>
+                        <div v-if="activeWallet && activeWallet.balance_limit && activeWallet.balance_limit > 0" class="mt-3">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-indigo-700 dark:text-indigo-300">Sisa Buffer</span>
+                                <span class="text-xs font-medium text-indigo-700 dark:text-indigo-300">Rp {{ formatNumber(Math.max(0, remainingBuffer || 0)) }}</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-indigo-200 dark:bg-indigo-900 rounded-full overflow-hidden">
+                                <div
+                                    class="h-full rounded-full transition-all duration-500"
+                                    :class="progressBarColor"
+                                    :style="{ width: progressBarWidth }"
+                                ></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,16 +122,16 @@
                     <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-700/50">
                         <h3 class="font-bold text-sm text-gray-700 dark:text-slate-300 uppercase tracking-wider">Pengeluaran per Kategori</h3>
                     </div>
-                    <div class="p-6 flex flex-col items-center">
+                    <div class="p-6">
                         <div v-if="loading" class="p-12 text-center">
                             <p class="text-sm text-gray-500 dark:text-slate-400">Memuat...</p>
                         </div>
                         <div v-else-if="categoryData.length === 0" class="p-12 text-center">
                             <p class="text-sm text-gray-500 dark:text-slate-400">Belum ada data pengeluaran.</p>
                         </div>
-                        <div v-else class="w-full flex flex-col items-center">
+                        <div v-else class="w-full flex flex-col gap-6 items-center">
                             <canvas ref="categoryChartCanvas" class="max-h-40"></canvas>
-                            <div class="mt-3 grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                            <div class="grid grid-cols-2 gap-2 text-xs">
                                 <div v-for="item in categoryData" :key="item.name" class="flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: item.color }"></span>
                                     <span class="text-gray-600 dark:text-slate-400">{{ item.name }}</span>
@@ -113,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch, computed } from 'vue';
 import axios from 'axios';
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from 'chart.js';
 
@@ -127,6 +162,8 @@ const categoryData = ref([]);
 const loading = ref(false);
 const categoryChartCanvas = ref(null);
 let categoryChart = null;
+const activeWallet = ref(null);
+const showBalanceAlert = ref(false);
 
 const fetchDashboard = async () => {
     loading.value = true;
@@ -142,6 +179,12 @@ const fetchDashboard = async () => {
         categoryData.value = response.data.data.category_data || [];
         if (response.data.data.active_wallet) {
             selectedWalletId.value = response.data.data.active_wallet.id;
+            activeWallet.value = response.data.data.active_wallet;
+            if (activeWallet.value && activeWallet.value.balance_limit && activeWallet.value.balance_limit > 0) {
+                showBalanceAlert.value = summary.value.balance <= activeWallet.value.balance_limit;
+            } else {
+                showBalanceAlert.value = false;
+            }
         }
         await nextTick();
         renderCategoryChart();
@@ -198,7 +241,58 @@ watch(selectedWalletId, () => {
     fetchDashboard();
 });
 
+const remainingBuffer = computed(() => {
+    if (!activeWallet.value || !activeWallet.value.balance_limit || activeWallet.value.balance_limit <= 0) {
+        return null;
+    }
+    return summary.value.balance - activeWallet.value.balance_limit;
+});
+
+const bufferPercentage = computed(() => {
+    if (remainingBuffer.value === null || activeWallet.value.balance_limit <= 0) {
+        return 0;
+    }
+    const percentage = (remainingBuffer.value / activeWallet.value.balance_limit) * 100;
+    return Math.max(0, Math.min(percentage, 100));
+});
+
+const progressBarWidth = computed(() => {
+    return `${bufferPercentage.value}%`;
+});
+
+const progressBarColor = computed(() => {
+    if (remainingBuffer.value === null) {
+        return 'bg-indigo-500';
+    }
+    if (remainingBuffer.value > 0) {
+        return 'bg-green-500';
+    }
+    if (remainingBuffer.value >= activeWallet.value.balance_limit * 0.5) {
+        return 'bg-yellow-500';
+    }
+    if (remainingBuffer.value >= 0) {
+        return 'bg-yellow-500';
+    }
+    return 'bg-red-500';
+});
+
+const dismissAlert = () => {
+    showBalanceAlert.value = false;
+};
+
 onMounted(() => {
     fetchDashboard();
 });
 </script>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: all 0.3s ease;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+</style>

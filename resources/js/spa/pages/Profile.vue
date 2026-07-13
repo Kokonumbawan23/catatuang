@@ -1,13 +1,13 @@
 <template>
-    <div class="py-12">
+    <div class="py-10 pb-24 sm:pb-0 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     <section>
                         <header>
-                            <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
-                            <p class="mt-1 text-sm text-gray-600">Update your account's profile information and email address.</p>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white">Profile Information</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Update your account's profile information and email address.</p>
                         </header>
 
                         <form @submit.prevent="updateProfile" class="mt-6 space-y-6">
@@ -47,19 +47,19 @@
                                     Save
                                 </button>
 
-                                <p v-if="profileSuccess" class="text-sm text-gray-600">Saved.</p>
+                                <p v-if="profileSuccess" class="text-sm text-gray-600 dark:text-gray-400">Saved.</p>
                             </div>
                         </form>
                     </section>
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     <section>
                         <header>
-                            <h2 class="text-lg font-medium text-gray-900">Update Password</h2>
-                            <p class="mt-1 text-sm text-gray-600">Ensure your account is using a long, random password to stay secure.</p>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white">Update Password</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Ensure your account is using a long, random password to stay secure.</p>
                         </header>
 
                         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
@@ -111,19 +111,19 @@
                                     Save
                                 </button>
 
-                                <p v-if="passwordSuccess" class="text-sm text-gray-600">Saved.</p>
+                                <p v-if="passwordSuccess" class="text-sm text-gray-600 dark:text-gray-400">Saved.</p>
                             </div>
                         </form>
                     </section>
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     <section class="space-y-6">
                         <header>
-                            <h2 class="text-lg font-medium text-gray-900">Delete Account</h2>
-                            <p class="mt-1 text-sm text-gray-600">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white">Delete Account</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
                         </header>
 
                         <button
@@ -147,8 +147,8 @@
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                     <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                         <div class="p-6">
-                            <h2 class="text-lg font-medium text-gray-900">Are you sure you want to delete your account?</h2>
-                            <p class="mt-1 text-sm text-gray-600">Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.</p>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white">Are you sure you want to delete your account?</h2>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.</p>
 
                             <div class="mt-6">
                                 <label for="delete_password" class="sr-only">Password</label>
