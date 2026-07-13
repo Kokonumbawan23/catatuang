@@ -13,6 +13,7 @@
                         @change="fetchTransactions"
                         class="w-36 rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-1.5 px-2 pr-8"
                     >
+                        <option :value="null">Pilih Dompet</option>
                         <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">{{ wallet.name }}</option>
                     </select>
                 </div>

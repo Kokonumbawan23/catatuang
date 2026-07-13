@@ -25,9 +25,7 @@ Dokumentasi ini menjelaskan arsitektur dan implementasi setiap fitur dalam aplik
 | Layer | Technology |
 |-------|------------|
 | Backend | Laravel 13 |
-| Frontend (Web) | Blade + Tailwind |
-| Frontend (Mobile) | Vue 3 + Pinia + Vue Router |
-| Auth (Web) | Laravel Breeze |
+| Frontend | Vue 3 SPA + Tailwind CSS + Pinia + Vue Router |
 | Auth (API) | Laravel Sanctum |
 | Database | SQLite (dev) / PostgreSQL (prod) |
 | API | RESTful JSON |

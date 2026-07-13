@@ -91,7 +91,11 @@
         </nav>
 
         <main class="min-h-screen bg-gray-100 dark:bg-slate-900 mb-16 sm:mb-0">
-            <router-view />
+            <router-view v-slot="{ Component }">
+                <transition name="fade" mode="out-in">
+                    <component :is="Component" />
+                </transition>
+            </router-view>
         </main>
 
         <div

@@ -17,18 +17,19 @@ CatatUang memiliki SPA frontend terpisah dibangun dengan Vue 3, Pinia, dan Vue R
 
 ```
 resources/js/spa/
-├── App.vue                 # Root component
-├── app.js                  # Vue initialization
-├── router.js               # Vue Router config
+├── App.vue                 # Root component (navigation, bottom tab bar)
+├── app.js                  # Vue + Pinia initialization
+├── router.js               # Vue Router config with auth guards
 ├── stores/                 # Pinia stores
-│   ├── auth.js            # Auth state
-│   └── wallet.js          # Wallet state
+│   └── auth.js            # Auth state (user, token, login/logout)
 └── pages/                  # Page components
     ├── Login.vue          # Login page
     ├── Register.vue       # Register page
-    ├── Dashboard.vue      # Main dashboard
-    ├── Wallets.vue        # Wallet management
-    └── Transactions.vue   # Transaction CRUD
+    ├── Dashboard.vue      # Main dashboard with wallet selector
+    ├── Wallets.vue        # Wallet CRUD
+    ├── Transactions.vue   # Transaction CRUD with analytics
+    ├── RecurringTransactions.vue  # Recurring transaction management
+    └── Profile.vue        # User profile
 ```
 
 ## App.js Initialization
@@ -57,54 +58,63 @@ import { useAuthStore } from './stores/auth'
 
 const routes = [
   {
-    path: '/',
-    redirect: '/dashboard'
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => import('./pages/Login.vue'),
-    meta: { guest: true }
+    meta: { guest: true },
   },
   {
     path: '/register',
     name: 'register',
     component: () => import('./pages/Register.vue'),
-    meta: { guest: true }
+    meta: { guest: true },
   },
   {
-    path: '/dashboard',
+    path: '/',
     name: 'dashboard',
     component: () => import('./pages/Dashboard.vue'),
-    meta: { auth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/wallets',
     name: 'wallets',
     component: () => import('./pages/Wallets.vue'),
-    meta: { auth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/transactions',
     name: 'transactions',
     component: () => import('./pages/Transactions.vue'),
-    meta: { auth: true }
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('./pages/Profile.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/recurring',
+    name: 'recurring',
+    component: () => import('./pages/RecurringTransactions.vue'),
+    meta: { requiresAuth: true },
   },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHistory('/spa'),
+  routes,
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  authStore.initAuth()
 
-  if (to.meta.auth && !authStore.token) {
-    next('/login')
-  } else if (to.meta.guest && authStore.token) {
-    next('/dashboard')
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login' })
+  } else if (to.meta.guest && authStore.isAuthenticated) {
+    next({ name: 'dashboard' })
   } else {
     next()
   }
@@ -217,49 +227,50 @@ export const useWalletStore = defineStore('wallet', {
 ### Dashboard.vue
 
 Features:
-- Wallet selector dropdown
-- 3-column summary cards (In, Out, Balance)
+- Wallet selector dropdown with "Pilih Dompet" placeholder
+- 3-column summary cards (Total Income, Total Expense, Balance)
+- Balance alert notification with progress bar
 - Recent transactions list
-- Balance alert notification
-- Balance progress bar
 
 ### Wallets.vue
 
 Features:
-- Wallet cards with gradient backgrounds
-- Create wallet modal
-- Edit wallet modal
-- Delete confirmation modal
+- Wallet cards with balance display
+- Create/Edit/Delete wallet modals
 - Balance limit input
-- Balance progress bar per wallet
+- Transaction count per wallet
 
 ### Transactions.vue
 
 Features:
-- 3-column layout (form + summary + table)
-- Transaction form with category dropdown
-- Inline edit/delete
-- Transaction table with category icons
-- Delete confirmation modal
+- Wallet filter dropdown with "Pilih Dompet" placeholder
+- 3-column summary cards (Income, Expense, Balance)
+- Transaction form (wallet, type, category, amount, description, date)
+- Transaction table with inline edit/delete
+- Search functionality
+- Monthly filter
 
-### Login.vue
+### RecurringTransactions.vue
 
 Features:
-- Email input
-- Password input
-- Login button
-- Link to register
+- Recurring transaction list
+- Create/Edit recurring transaction form
+- Toggle active/inactive
+- Frequency options (daily, weekly, monthly, yearly)
+
+### Profile.vue
+
+Features:
+- User name and email display
+- Logout functionality
+
+### Login.vue / Register.vue
+
+Features:
+- Email and password inputs
+- Login/Register with Sanctum token
 - Error handling
-
-### Register.vue
-
-Features:
-- Name input
-- Email input
-- Password input
-- Password confirmation
-- Register button
-- Link to login
+- Redirect to dashboard when authenticated
 
 ## API Integration
 
@@ -284,9 +295,9 @@ axios.interceptors.response.use(
 
 ## Related Files
 
-- `resources/js/spa/app.js`
-- `resources/js/spa/router.js`
-- `resources/js/spa/stores/auth.js`
-- `resources/js/spa/stores/wallet.js`
-- `resources/js/spa/pages/*.vue`
-- `resources/js/spa/App.vue`
+- `resources/js/spa/app.js` - Vue + Pinia initialization
+- `resources/js/spa/router.js` - Vue Router with auth guards
+- `resources/js/spa/stores/auth.js` - Auth Pinia store
+- `resources/js/spa/pages/*.vue` - All page components
+- `resources/js/spa/App.vue` - Root component with navigation
+- `resources/views/spa.blade.php` - SPA shell template
