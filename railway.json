@@ -9,6 +9,6 @@
     "restartPolicyMaxRetries": 10
   },
   "database": {
-    "default": "sqlite"
+    "default": "postgresql"
   }
 }
