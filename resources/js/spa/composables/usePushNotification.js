@@ -31,9 +31,13 @@ export function usePushNotification() {
 
         const reg = await navigator.serviceWorker.ready;
 
+        const appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        console.log('[Push] VAPID key length:', appServerKey.length, 'bytes');
+        console.log('[Push] VAPID key bytes:', Array.from(appServerKey));
+
         const sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+            applicationServerKey: appServerKey,
         });
 
         await axios.post('/api/push/subscribe', {
