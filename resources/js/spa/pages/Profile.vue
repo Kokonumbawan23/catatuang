@@ -253,7 +253,7 @@ import { usePushNotification } from '../composables/usePushNotification';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const { isSupported, permission, isSubscribed, subscribe, unsubscribe, testNotification } = usePushNotification();
+const { isSupported, permission, isSubscribed, checkSubscription, subscribe, unsubscribe, testNotification } = usePushNotification();
 
 const profileForm = reactive({
     name: '',
@@ -399,5 +399,6 @@ const deleteAccount = async () => {
 
 onMounted(() => {
     fetchProfile();
+    checkSubscription();
 });
 </script>

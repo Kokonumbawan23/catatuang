@@ -106,11 +106,7 @@ class PushNotificationService
                     'contentEncoding' => $subscription->content_encoding,
                 ]);
 
-                $this->webPush->sendNotification(
-                    $sub,
-                    json_encode($payload),
-                    true
-                );
+                $this->webPush->queueNotification($sub, json_encode($payload));
 
                 $count++;
             } catch (\Exception $e) {
@@ -118,7 +114,9 @@ class PushNotificationService
             }
         }
 
-        $this->webPush->flush();
+        foreach ($this->webPush->flush() as $report) {
+            // $report is a MessageSentReport
+        }
 
         return $count;
     }
