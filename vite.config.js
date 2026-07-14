@@ -10,6 +10,9 @@ export default defineConfig({
             host: 'localhost',
         },
     },
+    define: {
+        'import.meta.env.VITE_VAPID_PUBLIC_KEY': JSON.stringify('BOSRA9-AEa_yQ6XAHCvYBA6e82S3MliX2hEIn5PGKPV55HH2E3jgkGwxiJzU58wS_ZCpGeHHlmkmxffnpj2F98U'),
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/spa/app.js'],
