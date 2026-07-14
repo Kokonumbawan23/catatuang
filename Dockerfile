@@ -39,7 +39,7 @@ COPY . .
 
 COPY --from=frontend /app/public/build ./public/build
 COPY --from=frontend /app/public/sw.js ./public/sw.js
-COPY --from=frontend /app/public/manifest.webmanifest ./public/manifest.webmanifest
+COPY --from=frontend /app/public/build/manifest.webmanifest ./public/build/manifest.webmanifest
 
 RUN composer install \
     --no-dev \
