@@ -148,6 +148,16 @@
                     <span class="text-[10px] mt-1 font-medium">Transaksi</span>
                 </router-link>
                 <router-link
+                    to="/wallets"
+                    class="flex flex-col items-center justify-center flex-1 h-full"
+                    :class="isActive('/wallets') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" :stroke-width="isActive('/wallets') ? '2.2' : '1.8'" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Dompet</span>
+                </router-link>
+                <router-link
                     to="/recurring"
                     class="flex flex-col items-center justify-center flex-1 h-full"
                     :class="isActive('/recurring') ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'"
