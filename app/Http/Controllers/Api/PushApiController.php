@@ -7,7 +7,6 @@ use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class PushApiController extends Controller
 {
@@ -44,19 +43,7 @@ class PushApiController extends Controller
     public function test(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $wallet = $user->wallets()->whereNotNull('balance_limit')
-            ->where('balance_limit', '>', 0)
-            ->first();
-
-        if (! $wallet) {
-            return response()->json(['message' => 'No wallet with balance limit found.'], 422);
-        }
-
-        $count = $this->pushService->sendBalanceLimitAlert($wallet);
-
-        if ($count > 0) {
-            Log::info("Test push notification sent to {$count} subscription(s) for wallet {$wallet->name}.");
-        }
+        $count = $this->pushService->sendTestPush($user);
 
         return response()->json([
             'message' => $count > 0

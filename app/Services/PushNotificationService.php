@@ -90,6 +90,22 @@ class PushNotificationService
         return $this->sendNotification($subscriptions, $notification);
     }
 
+    public function sendTestPush(User $user): int
+    {
+        $subscriptions = PushSubscription::where('user_id', $user->id)->get();
+
+        $payload = [
+            'title' => '🔔 Test Notification',
+            'body' => 'Push notification CatatUang berfungsi!',
+            'icon' => '/icons/icon-192.png',
+            'badge' => '/icons/icon-192.png',
+            'tag' => 'test-notification',
+            'data' => ['type' => 'test'],
+        ];
+
+        return $this->sendNotification($subscriptions, $payload);
+    }
+
     public function sendNotification(iterable $subscriptions, array $payload): int
     {
         if (! $this->webPush) {
