@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\PushSubscription;
 use App\Models\User;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\Log;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 
@@ -114,11 +115,22 @@ class PushNotificationService
             }
         }
 
+        $sent = 0;
+
         foreach ($this->webPush->flush() as $report) {
-            // $report is a MessageSentReport
+            if ($report->isSuccess()) {
+                $sent++;
+            } else {
+                Log::error('Push notification failed', [
+                    'endpoint' => $report->getEndpoint(),
+                    'reason' => $report->getReason(),
+                    'success' => $report->isSuccess(),
+                    'expired' => $report->isSubscriptionExpired(),
+                ]);
+            }
         }
 
-        return $count;
+        return $sent;
     }
 
     public function checkAndNotify(Wallet $wallet): int
