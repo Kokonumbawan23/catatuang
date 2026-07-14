@@ -39,7 +39,6 @@ COPY . .
 
 COPY --from=frontend /app/public/build ./public/build
 COPY --from=frontend /app/public/sw.js ./public/sw.js
-COPY --from=frontend /app/public/sw.mjs ./public/sw.mjs
 
 RUN composer install \
     --no-dev \
