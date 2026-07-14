@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip \
+    libgmp-dev \
+    && docker-php-ext-install pdo pdo_pgsql zip gmp bcmath \
     && docker-php-ext-enable pdo_pgsql \
     && rm -rf /var/lib/apt/lists/*
 
