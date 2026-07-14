@@ -57,7 +57,12 @@ class PushNotificationService
             return 0;
         }
 
-        if ($wallet->balance > $wallet->balance_limit) {
+        $threshold = (float) $wallet->balance_limit;
+        $balance = (float) $wallet->balance;
+        $pct = ($balance - $threshold) / $threshold * 100;
+
+        // di atas threshold + 20% → gak alert
+        if ($pct > 20) {
             return 0;
         }
 
@@ -67,23 +72,36 @@ class PushNotificationService
             return 0;
         }
 
-        $remaining = $wallet->balance - $wallet->balance_limit;
-        $formattedBalance = 'Rp '.number_format($wallet->balance, 0, ',', '.');
-        $formattedLimit = 'Rp '.number_format($wallet->balance_limit, 0, ',', '.');
+        $formattedBalance = 'Rp '.number_format($balance, 0, ',', '.');
+        $formattedLimit = 'Rp '.number_format($threshold, 0, ',', '.');
+
+        if ($pct <= 0) {
+            $title = '🚨 Saldo Kritis';
+            $body = "Dompet \"{$wallet->name}\" sudah di bawah batas! ({$formattedBalance} / {$formattedLimit})";
+            $tag = 'balance-limit-critical-'.$wallet->id;
+        } elseif ($pct <= 10) {
+            $title = '⚠️ Saldo Hampir Habis';
+            $body = "Dompet \"{$wallet->name}\" tinggal {$formattedBalance} — mendekati limit ({$formattedLimit})";
+            $tag = 'balance-limit-warning-'.$wallet->id;
+        } else {
+            $title = 'ℹ️ Saldo Menipis';
+            $body = "Dompet \"{$wallet->name}\" tersisa {$formattedBalance}. Limit dompet: {$formattedLimit}";
+            $tag = 'balance-limit-info-'.$wallet->id;
+        }
 
         $notification = [
-            'title' => '⚠️ Alert Limit Saldo',
-            'body' => "Saldo dompet \"{$wallet->name}\" telah mencapai {$formattedBalance} (limit: {$formattedLimit}). Sisa: {$remaining}",
+            'title' => $title,
+            'body' => $body,
             'icon' => '/icons/icon-192.png',
             'badge' => '/icons/icon-192.png',
-            'tag' => 'balance-limit-'.$wallet->id,
+            'tag' => $tag,
             'data' => [
                 'type' => 'balance_limit',
                 'wallet_id' => $wallet->id,
                 'wallet_name' => $wallet->name,
-                'balance' => $wallet->balance,
-                'balance_limit' => $wallet->balance_limit,
-                'remaining' => $remaining,
+                'balance' => $balance,
+                'balance_limit' => $threshold,
+                'percentage' => round($pct, 1),
             ],
         ];
 
@@ -151,14 +169,6 @@ class PushNotificationService
 
     public function checkAndNotify(Wallet $wallet): int
     {
-        if (! $wallet->balance_limit || $wallet->balance_limit <= 0) {
-            return 0;
-        }
-
-        if ($wallet->balance > $wallet->balance_limit) {
-            return 0;
-        }
-
         return $this->sendBalanceLimitAlert($wallet);
     }
 }
