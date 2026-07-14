@@ -12,12 +12,19 @@ self.skipWaiting();
 clientsClaim();
 
 self.addEventListener('push', (event) => {
-    if (!event.data) return;
+    console.log('[SW] Push event received', event.data?.text()?.substring(0, 100));
+
+    if (!event.data) {
+        console.log('[SW] Push event has no data, skipping');
+        return;
+    }
 
     let data;
     try {
         data = event.data.json();
-    } catch {
+        console.log('[SW] Push data parsed:', JSON.stringify(data));
+    } catch (e) {
+        console.log('[SW] Push data parse failed, using raw text');
         data = { title: 'CatatUang', body: event.data.text() };
     }
 
@@ -32,8 +39,12 @@ self.addEventListener('push', (event) => {
         requireInteraction: false,
     };
 
+    console.log('[SW] Showing notification:', data.title, options.body);
+
     event.waitUntil(
         self.registration.showNotification(data.title || 'CatatUang', options)
+            .then(() => console.log('[SW] Notification shown successfully'))
+            .catch((err) => console.error('[SW] Show notification failed:', err))
     );
 });
 

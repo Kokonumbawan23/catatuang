@@ -1,0 +1,23 @@
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - link "CatatUang" [ref=e7] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: Email
+        - textbox "Email" [active] [ref=e16]:
+          - /placeholder: nama@email.com
+      - generic [ref=e17]:
+        - generic [ref=e18]: Password
+        - textbox "Password" [ref=e19]:
+          - /placeholder: ••••••••
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - checkbox "Ingat saya" [ref=e22]
+          - generic [ref=e23]: Ingat saya
+        - link "Lupa password?" [ref=e24] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e25]:
+        - link "Daftar" [ref=e26] [cursor=pointer]:
+          - /url: /spa/register
+        - button "Masuk" [ref=e27] [cursor=pointer]
