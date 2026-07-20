@@ -11,6 +11,7 @@ use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class RecurringTransactionApiController extends Controller
 {
@@ -22,16 +23,20 @@ class RecurringTransactionApiController extends Controller
     {
         $user = Auth::user();
 
+        $baseQuery = RecurringTransaction::query()
+            ->where('user_id', $user->id)
+            ->where('is_active', true);
+
+        $totalActiveThisMonth = (clone $baseQuery)->count();
+        $monthlyCommitment = (clone $baseQuery)->sum('amount');
+
         $recurrings = RecurringTransaction::with(['wallet', 'category'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $categories = Category::all();
+        $categories = Cache::remember('categories', 3600, fn () => Category::all()); // ponytail: cache 1 hour
         $wallets = $user->wallets()->orderBy('name')->get();
-
-        $totalActiveThisMonth = $recurrings->where('is_active', true)->count();
-        $monthlyCommitment = $recurrings->where('is_active', true)->sum('amount');
 
         return response()->json([
             'data' => $recurrings,

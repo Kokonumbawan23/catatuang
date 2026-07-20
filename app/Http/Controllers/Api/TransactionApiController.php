@@ -13,6 +13,7 @@ use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TransactionApiController extends Controller
@@ -53,27 +54,25 @@ class TransactionApiController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $baseQuery = $user->transactions()
+        $totals = DB::table('transactions')
+            ->where('user_id', $user->id)
+            ->where('wallet_id', $activeWallet?->id)
             ->whereMonth('transaction_date', $month)
-            ->whereYear('transaction_date', $year);
+            ->whereYear('transaction_date', $year)
+            ->selectRaw("SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income, SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense")
+            ->first();
 
-        if ($activeWallet) {
-            $baseQuery->where('wallet_id', $activeWallet->id);
-        }
-
-        $totalIncome = (clone $baseQuery)->where('type', 'income')->sum('amount');
-        $totalExpense = (clone $baseQuery)->where('type', 'expense')->sum('amount');
-        $activeWalletBalance = $activeWallet ? $activeWallet->balance : 0;
+        $categories = Cache::remember('categories', 3600, fn () => Category::all()); // ponytail: cache 1 hour, categories rarely change
 
         return response()->json([
             'data' => $transactions,
             'meta' => [
                 'wallets' => $wallets,
                 'active_wallet' => $activeWallet,
-                'active_wallet_balance' => $activeWalletBalance,
-                'total_income' => $totalIncome,
-                'total_expense' => $totalExpense,
-                'categories' => Category::all(),
+                'active_wallet_balance' => $activeWallet?->balance ?? 0,
+                'total_income' => $totals->total_income ?? 0,
+                'total_expense' => $totals->total_expense ?? 0,
+                'categories' => $categories,
                 'month' => $month,
                 'year' => $year,
                 'search' => $search,

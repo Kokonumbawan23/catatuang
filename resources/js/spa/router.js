@@ -55,6 +55,10 @@ router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
     authStore.initAuth();
 
+    if (to.meta.requiresAuth && authStore.isAuthenticated && !authStore.user) {
+        await authStore.fetchUser();
+    }
+
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         next({ name: 'login' });
     } else if (to.meta.guest && authStore.isAuthenticated) {

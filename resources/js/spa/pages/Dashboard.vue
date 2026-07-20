@@ -182,7 +182,7 @@ const fetchDashboard = async () => {
             selectedWalletId.value = response.data.data.active_wallet.id;
             activeWallet.value = response.data.data.active_wallet;
             if (activeWallet.value && activeWallet.value.balance_limit && activeWallet.value.balance_limit > 0) {
-                showBalanceAlert.value = summary.value.balance <= activeWallet.value.balance_limit;
+                showBalanceAlert.value = summary.value.balance < activeWallet.value.balance_limit;
             } else {
                 showBalanceAlert.value = false;
             }
@@ -269,9 +269,6 @@ const progressBarColor = computed(() => {
         return 'bg-green-500';
     }
     if (remainingBuffer.value >= activeWallet.value.balance_limit * 0.5) {
-        return 'bg-yellow-500';
-    }
-    if (remainingBuffer.value >= 0) {
         return 'bg-yellow-500';
     }
     return 'bg-red-500';
