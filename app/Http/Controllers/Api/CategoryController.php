@@ -15,7 +15,7 @@ class CategoryController extends Controller
 
         $type = TransactionType::tryFrom((string) request('type'));
         if ($type !== null) {
-            $categories = $categories->where('type', $type)->values();
+            $categories = $categories->where('type', $type->value)->values();
         }
 
         return response()->json([

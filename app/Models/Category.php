@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Enums\TransactionType;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class Category extends Model
@@ -47,8 +47,13 @@ class Category extends Model
     }
 
     // Kategori jarang berubah, jadi di-cache dan dipakai bersama oleh semua endpoint.
+    // Disimpan sebagai array mentah (bukan koleksi model Eloquent) supaya cache lama
+    // dari deploy sebelumnya tidak pernah gagal di-unserialize gara-gara struktur
+    // class model yang berubah antar versi kode.
     public static function cached(): Collection
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn () => static::all());
+        $rows = Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn () => static::all()->toArray());
+
+        return collect($rows);
     }
 }
