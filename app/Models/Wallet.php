@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BalanceAlertLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,12 +17,14 @@ class Wallet extends Model
         'name',
         'balance',
         'balance_limit',
+        'last_alert_level',
     ];
 
     protected function casts(): array
     {
         return [
             'balance' => 'decimal:2',
+            'last_alert_level' => BalanceAlertLevel::class,
         ];
     }
 

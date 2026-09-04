@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BalanceAlertLevel;
 use App\Models\PushSubscription;
 use App\Models\User;
 use App\Models\Wallet;
@@ -70,6 +71,15 @@ class PushNotificationService
         $pct = ($balance - $threshold) / $threshold * 100;
 
         if ($pct > self::NOTIFY_THRESHOLD_PERCENT) {
+            $this->clearAlertLevel($wallet);
+
+            return 0;
+        }
+
+        $level = $this->resolveAlertLevel($pct);
+
+        // Level sama dengan alert terakhir yang sudah dikirim -> jangan spam, tunggu sampai levelnya berubah.
+        if ($wallet->last_alert_level === $level) {
             return 0;
         }
 
@@ -79,29 +89,57 @@ class PushNotificationService
             return 0;
         }
 
+        $notification = $this->buildBalanceLimitNotification($wallet, $level, $balance, $threshold, $pct);
+
+        $sent = $this->sendNotification($subscriptions, $notification);
+
+        $wallet->update(['last_alert_level' => $level]);
+
+        return $sent;
+    }
+
+    private function resolveAlertLevel(float $pct): BalanceAlertLevel
+    {
+        return match (true) {
+            $pct <= self::CRITICAL_THRESHOLD_PERCENT => BalanceAlertLevel::Critical,
+            $pct <= self::WARNING_THRESHOLD_PERCENT => BalanceAlertLevel::Warning,
+            default => BalanceAlertLevel::Info,
+        };
+    }
+
+    private function clearAlertLevel(Wallet $wallet): void
+    {
+        if ($wallet->last_alert_level !== null) {
+            $wallet->update(['last_alert_level' => null]);
+        }
+    }
+
+    private function buildBalanceLimitNotification(Wallet $wallet, BalanceAlertLevel $level, float $balance, float $threshold, float $pct): array
+    {
         $formattedBalance = 'Rp '.number_format($balance, 0, ',', '.');
         $formattedLimit = 'Rp '.number_format($threshold, 0, ',', '.');
 
-        if ($pct <= self::CRITICAL_THRESHOLD_PERCENT) {
-            $title = '🚨 Saldo Kritis';
-            $body = "Dompet \"{$wallet->name}\" sudah di bawah batas! ({$formattedBalance} / {$formattedLimit})";
-            $tag = 'balance-limit-critical-'.$wallet->id;
-        } elseif ($pct <= self::WARNING_THRESHOLD_PERCENT) {
-            $title = '⚠️ Saldo Hampir Habis';
-            $body = "Dompet \"{$wallet->name}\" tinggal {$formattedBalance} — mendekati limit ({$formattedLimit})";
-            $tag = 'balance-limit-warning-'.$wallet->id;
-        } else {
-            $title = 'ℹ️ Saldo Menipis';
-            $body = "Dompet \"{$wallet->name}\" tersisa {$formattedBalance}. Limit dompet: {$formattedLimit}";
-            $tag = 'balance-limit-info-'.$wallet->id;
-        }
+        [$title, $body] = match ($level) {
+            BalanceAlertLevel::Critical => [
+                '🚨 Saldo Kritis',
+                "Dompet \"{$wallet->name}\" sudah di bawah batas! ({$formattedBalance} / {$formattedLimit})",
+            ],
+            BalanceAlertLevel::Warning => [
+                '⚠️ Saldo Hampir Habis',
+                "Dompet \"{$wallet->name}\" tinggal {$formattedBalance} — mendekati limit ({$formattedLimit})",
+            ],
+            BalanceAlertLevel::Info => [
+                'ℹ️ Saldo Menipis',
+                "Dompet \"{$wallet->name}\" tersisa {$formattedBalance}. Limit dompet: {$formattedLimit}",
+            ],
+        };
 
-        $notification = [
+        return [
             'title' => $title,
             'body' => $body,
             'icon' => self::NOTIFICATION_ICON,
             'badge' => self::NOTIFICATION_ICON,
-            'tag' => $tag,
+            'tag' => 'balance-limit-'.$level->value.'-'.$wallet->id,
             'data' => [
                 'type' => 'balance_limit',
                 'wallet_id' => $wallet->id,
@@ -111,8 +149,6 @@ class PushNotificationService
                 'percentage' => round($pct, 1),
             ],
         ];
-
-        return $this->sendNotification($subscriptions, $notification);
     }
 
     public function sendTestPush(User $user): int
