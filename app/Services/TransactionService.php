@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TransactionType;
+use App\Jobs\SendBalanceLimitAlert;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +13,7 @@ class TransactionService
     public function __construct(
         private WalletOwnershipService $walletOwnership,
         private WalletBalanceService $walletBalance,
-        private ActivityLogger $logger,
-        private PushNotificationService $pushService
+        private ActivityLogger $logger
     ) {}
 
     public function create(User $user, array $attributes): Transaction
@@ -37,7 +37,7 @@ class TransactionService
             return $transaction;
         });
 
-        $this->pushService->checkAndNotify($targetWallet->refresh());
+        SendBalanceLimitAlert::dispatch($targetWallet);
 
         return $transaction;
     }
@@ -66,10 +66,10 @@ class TransactionService
             $this->logger->transactionUpdated($user->id, $transaction->id);
         });
 
-        $this->pushService->checkAndNotify($currentWallet->refresh());
+        SendBalanceLimitAlert::dispatch($currentWallet);
 
         if ($walletChanged) {
-            $this->pushService->checkAndNotify($targetWallet->refresh());
+            SendBalanceLimitAlert::dispatch($targetWallet);
         }
 
         return $transaction;
@@ -87,6 +87,6 @@ class TransactionService
 
         $this->logger->transactionDeleted($user->id, $transaction->id);
 
-        $this->pushService->checkAndNotify($wallet->refresh());
+        SendBalanceLimitAlert::dispatch($wallet);
     }
 }

@@ -3,11 +3,13 @@
 namespace Tests\Feature\Api;
 
 use App\Enums\TransactionType;
+use App\Jobs\SendBalanceLimitAlert;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -95,6 +97,26 @@ class TransactionApiTest extends TestCase
 
         $wallet->refresh();
         $this->assertEquals(-50000, $wallet->balance);
+    }
+
+    public function test_creating_transaction_queues_balance_limit_alert_instead_of_sending_it_inline(): void
+    {
+        Bus::fake();
+
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id, 'balance' => 0]);
+        $category = Category::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/transactions', [
+            'wallet_id' => $wallet->id,
+            'type' => 'expense',
+            'amount' => 50000,
+            'category_id' => $category->id,
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+        Bus::assertDispatched(SendBalanceLimitAlert::class, fn ($job) => $job->wallet->id === $wallet->id);
     }
 
     public function test_income_transaction_increases_balance(): void
