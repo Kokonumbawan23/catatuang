@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\RecurringTransaction;
 use App\Services\RecurringTransactionScheduleService;
+use App\Services\WalletBalanceService;
 use Carbon\Carbon;
 use Tests\TestCase;
 
@@ -31,7 +32,7 @@ class RecurringTransactionScheduleServiceTest extends TestCase
 
     public function test_monthly_recurring_without_interval_runs_every_month(): void
     {
-        $service = new RecurringTransactionScheduleService;
+        $service = new RecurringTransactionScheduleService(new WalletBalanceService);
         $recurring = $this->makeMonthlyRecurring('2026-01-15', 15, 1);
 
         Carbon::setTestNow('2026-02-15');
@@ -43,7 +44,7 @@ class RecurringTransactionScheduleServiceTest extends TestCase
 
     public function test_monthly_recurring_with_interval_skips_months_in_between(): void
     {
-        $service = new RecurringTransactionScheduleService;
+        $service = new RecurringTransactionScheduleService(new WalletBalanceService);
         $recurring = $this->makeMonthlyRecurring('2026-01-15', 15, 3);
 
         // 1 bulan setelah start_date: belum waktunya (interval 3 bulan).
@@ -69,7 +70,7 @@ class RecurringTransactionScheduleServiceTest extends TestCase
 
     public function test_monthly_recurring_does_not_run_on_wrong_day(): void
     {
-        $service = new RecurringTransactionScheduleService;
+        $service = new RecurringTransactionScheduleService(new WalletBalanceService);
         $recurring = $this->makeMonthlyRecurring('2026-01-15', 15, 3);
 
         Carbon::setTestNow('2026-04-16');

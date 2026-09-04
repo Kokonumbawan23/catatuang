@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class Category extends Model
 {
     use HasFactory;
+
+    private const CACHE_KEY = 'categories';
+
+    private const CACHE_TTL_SECONDS = 3600;
 
     protected $fillable = [
         'name',
@@ -20,7 +27,7 @@ class Category extends Model
     protected function casts(): array
     {
         return [
-            'type' => 'string',
+            'type' => TransactionType::class,
         ];
     }
 
@@ -31,11 +38,17 @@ class Category extends Model
 
     public function scopeExpense($query)
     {
-        return $query->where('type', 'expense');
+        return $query->where('type', TransactionType::Expense->value);
     }
 
     public function scopeIncome($query)
     {
-        return $query->where('type', 'income');
+        return $query->where('type', TransactionType::Income->value);
+    }
+
+    // Kategori jarang berubah, jadi di-cache dan dipakai bersama oleh semua endpoint.
+    public static function cached(): Collection
+    {
+        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn () => static::all());
     }
 }

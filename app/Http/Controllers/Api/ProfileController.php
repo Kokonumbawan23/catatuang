@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
-class ProfileApiController extends Controller
+class ProfileController extends Controller
 {
     public function __construct(
         private ActivityLogger $logger

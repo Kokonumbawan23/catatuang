@@ -222,6 +222,6 @@ class RecurringTransactionPolicy
 - `app/Models/RecurringTransaction.php`
 - `app/Services/RecurringTransactionScheduleService.php`
 - `app/Console/Commands/ProcessRecurringTransactions.php`
-- `app/Http/Controllers/Api/RecurringTransactionApiController.php`
+- `app/Http/Controllers/Api/RecurringTransactionController.php`
 - `app/Policies/RecurringTransactionPolicy.php`
 - `database/migrations/*_create_recurring_transactions_table.php`

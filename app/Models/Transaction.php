@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Transaction extends Model
 {
     use HasFactory;
+
+    public const MIN_AMOUNT = 1;
+
+    public const MAX_AMOUNT = 99999999999999;
 
     protected $fillable = [
         'user_id',
@@ -25,6 +30,7 @@ class Transaction extends Model
         return [
             'amount' => 'decimal:2',
             'transaction_date' => 'date',
+            'type' => TransactionType::class,
         ];
     }
 
@@ -50,12 +56,12 @@ class Transaction extends Model
 
     public function scopeIncomes($query)
     {
-        return $query->where('type', 'income');
+        return $query->where('type', TransactionType::Income->value);
     }
 
     public function scopeExpenses($query)
     {
-        return $query->where('type', 'expense');
+        return $query->where('type', TransactionType::Expense->value);
     }
 
     public function scopeForMonth($query, $month, $year)

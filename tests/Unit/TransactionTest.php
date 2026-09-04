@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\TransactionType;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
@@ -34,14 +35,14 @@ class TransactionTest extends TestCase
     {
         $transaction = Transaction::factory()->expense()->create();
 
-        $this->assertEquals('expense', $transaction->type);
+        $this->assertEquals(TransactionType::Expense, $transaction->type);
     }
 
     public function test_transaction_can_be_income_type(): void
     {
         $transaction = Transaction::factory()->income()->create();
 
-        $this->assertEquals('income', $transaction->type);
+        $this->assertEquals(TransactionType::Income, $transaction->type);
     }
 
     public function test_incomes_scope_filters_income_transactions(): void
@@ -53,7 +54,7 @@ class TransactionTest extends TestCase
         $incomes = Transaction::forUser($user->id)->incomes()->get();
 
         $this->assertCount(3, $incomes);
-        $this->assertTrue($incomes->every(fn ($t) => $t->type === 'income'));
+        $this->assertTrue($incomes->every(fn ($t) => $t->type === TransactionType::Income));
     }
 
     public function test_expenses_scope_filters_expense_transactions(): void
@@ -65,7 +66,7 @@ class TransactionTest extends TestCase
         $expenses = Transaction::forUser($user->id)->expenses()->get();
 
         $this->assertCount(2, $expenses);
-        $this->assertTrue($expenses->every(fn ($t) => $t->type === 'expense'));
+        $this->assertTrue($expenses->every(fn ($t) => $t->type === TransactionType::Expense));
     }
 
     public function test_for_month_scope_filters_by_month_and_year(): void

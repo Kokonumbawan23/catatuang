@@ -115,6 +115,6 @@ Lihat [05-balance-alert.md](./05-balance-alert.md) untuk detail implementasi ale
 
 ## Related Files
 
-- `app/Http/Controllers/Api/DashboardApiController.php`
+- `app/Http/Controllers/Api/DashboardController.php`
 - `resources/js/spa/pages/Dashboard.vue`
 - `resources/js/spa/stores/dashboard.js`

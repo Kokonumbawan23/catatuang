@@ -219,7 +219,7 @@ Setiap transaksi harus memiliki category. Default categories di-seed:
 ## Related Files
 
 - `app/Models/Transaction.php`
-- `app/Http/Controllers/Api/TransactionApiController.php`
+- `app/Http/Controllers/Api/TransactionController.php`
 - `app/Http/Requests/StoreTransactionRequest.php`
 - `app/Http/Requests/UpdateTransactionRequest.php`
 - `app/Policies/TransactionPolicy.php`

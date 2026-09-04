@@ -2,14 +2,20 @@
 
 namespace App\Services;
 
+use App\Enums\TransactionType;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ActivityLogger
 {
+    private function log(string $level, string $event, array $context): void
+    {
+        Log::channel('daily')->{$level}($event, $context);
+    }
+
     public function authFailure(string $email, string $reason, ?string $ip = null): void
     {
-        Log::channel('daily')->warning('auth:failure', [
+        $this->log('warning', 'auth:failure', [
             'email' => $email,
             'reason' => $reason,
             'fail_message' => $reason === 'invalid_credentials'
@@ -22,7 +28,7 @@ class ActivityLogger
 
     public function authSuccess(int $userId, string $email, string $deviceName): void
     {
-        Log::channel('daily')->info('auth:success', [
+        $this->log('info', 'auth:success', [
             'user_id' => $userId,
             'email' => $email,
             'device_name' => $deviceName,
@@ -33,7 +39,7 @@ class ActivityLogger
 
     public function registrationSuccess(int $userId, string $email): void
     {
-        Log::channel('daily')->info('auth:registration', [
+        $this->log('info', 'auth:registration', [
             'user_id' => $userId,
             'email' => $email,
             'ip' => request()->ip(),
@@ -42,7 +48,7 @@ class ActivityLogger
 
     public function registrationFailure(string $email, string $reason): void
     {
-        Log::channel('daily')->warning('auth:registration_failure', [
+        $this->log('warning', 'auth:registration_failure', [
             'email' => $email,
             'reason' => $reason,
             'ip' => request()->ip(),
@@ -51,19 +57,19 @@ class ActivityLogger
 
     public function accountDeleted(int $userId, string $email): void
     {
-        Log::channel('daily')->info('account:deleted', [
+        $this->log('info', 'account:deleted', [
             'user_id' => $userId,
             'email' => $email,
             'ip' => request()->ip(),
         ]);
     }
 
-    public function transactionCreated(int $userId, int $transactionId, string $type, float $amount, int $walletId): void
+    public function transactionCreated(int $userId, int $transactionId, TransactionType $type, float $amount, int $walletId): void
     {
-        Log::channel('daily')->info('transaction:created', [
+        $this->log('info', 'transaction:created', [
             'user_id' => $userId,
             'transaction_id' => $transactionId,
-            'type' => $type,
+            'type' => $type->value,
             'amount' => $amount,
             'wallet_id' => $walletId,
         ]);
@@ -71,7 +77,7 @@ class ActivityLogger
 
     public function transactionUpdated(int $userId, int $transactionId): void
     {
-        Log::channel('daily')->info('transaction:updated', [
+        $this->log('info', 'transaction:updated', [
             'user_id' => $userId,
             'transaction_id' => $transactionId,
         ]);
@@ -79,7 +85,7 @@ class ActivityLogger
 
     public function transactionDeleted(int $userId, int $transactionId): void
     {
-        Log::channel('daily')->info('transaction:deleted', [
+        $this->log('info', 'transaction:deleted', [
             'user_id' => $userId,
             'transaction_id' => $transactionId,
         ]);
@@ -87,7 +93,7 @@ class ActivityLogger
 
     public function transactionFailed(int $userId, string $reason, array $context = []): void
     {
-        Log::channel('daily')->error('transaction:failed', array_merge([
+        $this->log('error', 'transaction:failed', array_merge([
             'user_id' => $userId,
             'reason' => $reason,
             'ip' => request()->ip(),
@@ -96,7 +102,7 @@ class ActivityLogger
 
     public function walletCreated(int $userId, int $walletId, string $walletName): void
     {
-        Log::channel('daily')->info('wallet:created', [
+        $this->log('info', 'wallet:created', [
             'user_id' => $userId,
             'wallet_id' => $walletId,
             'wallet_name' => $walletName,
@@ -105,7 +111,7 @@ class ActivityLogger
 
     public function walletUpdated(int $userId, int $walletId): void
     {
-        Log::channel('daily')->info('wallet:updated', [
+        $this->log('info', 'wallet:updated', [
             'user_id' => $userId,
             'wallet_id' => $walletId,
         ]);
@@ -113,24 +119,24 @@ class ActivityLogger
 
     public function walletDeleted(int $userId, int $walletId): void
     {
-        Log::channel('daily')->info('wallet:deleted', [
+        $this->log('info', 'wallet:deleted', [
             'user_id' => $userId,
             'wallet_id' => $walletId,
         ]);
     }
 
-    public function recurringTransactionCreated(int $userId, int $recurringId, string $type): void
+    public function recurringTransactionCreated(int $userId, int $recurringId, TransactionType $type): void
     {
-        Log::channel('daily')->info('recurring:created', [
+        $this->log('info', 'recurring:created', [
             'user_id' => $userId,
             'recurring_id' => $recurringId,
-            'type' => $type,
+            'type' => $type->value,
         ]);
     }
 
     public function recurringTransactionUpdated(int $userId, int $recurringId): void
     {
-        Log::channel('daily')->info('recurring:updated', [
+        $this->log('info', 'recurring:updated', [
             'user_id' => $userId,
             'recurring_id' => $recurringId,
         ]);
@@ -138,7 +144,7 @@ class ActivityLogger
 
     public function recurringTransactionDeleted(int $userId, int $recurringId): void
     {
-        Log::channel('daily')->info('recurring:deleted', [
+        $this->log('info', 'recurring:deleted', [
             'user_id' => $userId,
             'recurring_id' => $recurringId,
         ]);
@@ -146,7 +152,7 @@ class ActivityLogger
 
     public function recurringTransactionToggled(int $userId, int $recurringId, bool $isActive): void
     {
-        Log::channel('daily')->info('recurring:toggled', [
+        $this->log('info', 'recurring:toggled', [
             'user_id' => $userId,
             'recurring_id' => $recurringId,
             'is_active' => $isActive,
@@ -155,7 +161,7 @@ class ActivityLogger
 
     public function profileUpdated(int $userId, array $changedFields): void
     {
-        Log::channel('daily')->info('profile:updated', [
+        $this->log('info', 'profile:updated', [
             'user_id' => $userId,
             'changed_fields' => $changedFields,
             'ip' => request()->ip(),
@@ -164,7 +170,7 @@ class ActivityLogger
 
     public function passwordChanged(int $userId): void
     {
-        Log::channel('daily')->info('password:changed', [
+        $this->log('info', 'password:changed', [
             'user_id' => $userId,
             'ip' => request()->ip(),
         ]);
@@ -172,7 +178,7 @@ class ActivityLogger
 
     public function unauthorizedAccess(int $userId, string $resource, string $action): void
     {
-        Log::channel('daily')->warning('access:unauthorized', [
+        $this->log('warning', 'access:unauthorized', [
             'user_id' => $userId,
             'resource' => $resource,
             'action' => $action,
@@ -182,7 +188,7 @@ class ActivityLogger
 
     public function validationFailure(int $userId, string $context, array $errors): void
     {
-        Log::channel('daily')->warning('validation:failure', [
+        $this->log('warning', 'validation:failure', [
             'user_id' => $userId,
             'context' => $context,
             'errors' => $errors,
@@ -192,7 +198,7 @@ class ActivityLogger
 
     public function serverError(Throwable $e, array $context = []): void
     {
-        Log::channel('daily')->error('server:error', array_merge([
+        $this->log('error', 'server:error', array_merge([
             'exception' => get_class($e),
             'message' => $e->getMessage(),
             'file' => $e->getFile(),

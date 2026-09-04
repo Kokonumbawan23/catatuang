@@ -8,15 +8,16 @@ use App\Http\Requests\UpdateRecurringTransactionRequest;
 use App\Models\Category;
 use App\Models\RecurringTransaction;
 use App\Services\ActivityLogger;
+use App\Services\WalletOwnershipService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
-class RecurringTransactionApiController extends Controller
+class RecurringTransactionController extends Controller
 {
     public function __construct(
-        private ActivityLogger $logger
+        private ActivityLogger $logger,
+        private WalletOwnershipService $walletOwnership
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -35,7 +36,7 @@ class RecurringTransactionApiController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $categories = Cache::remember('categories', 3600, fn () => Category::all()); // ponytail: cache 1 hour
+        $categories = Category::cached();
         $wallets = $user->wallets()->orderBy('name')->get();
 
         return response()->json([
@@ -52,9 +53,12 @@ class RecurringTransactionApiController extends Controller
     public function store(StoreRecurringTransactionRequest $request): JsonResponse
     {
         $user = Auth::user();
+        $attributes = $request->validated();
+
+        $this->walletOwnership->ensureBelongsToUser($attributes['wallet_id'], $user);
 
         $recurring = RecurringTransaction::create([
-            ...$request->validated(),
+            ...$attributes,
             'user_id' => $user->id,
         ]);
 
@@ -69,7 +73,13 @@ class RecurringTransactionApiController extends Controller
     {
         $this->authorize('update', $recurringTransaction);
 
-        $recurringTransaction->update($request->validated());
+        $attributes = $request->validated();
+
+        if (isset($attributes['wallet_id'])) {
+            $this->walletOwnership->ensureBelongsToUser($attributes['wallet_id'], Auth::user());
+        }
+
+        $recurringTransaction->update($attributes);
 
         $this->logger->recurringTransactionUpdated(Auth::id(), $recurringTransaction->id);
 

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
-class AuthApiController extends Controller
+class AuthController extends Controller
 {
     public function __construct(
         private ActivityLogger $logger

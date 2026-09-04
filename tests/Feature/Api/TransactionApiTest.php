@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\TransactionType;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
@@ -35,6 +36,33 @@ class TransactionApiTest extends TestCase
                     'categories',
                 ],
             ]);
+    }
+
+    public function test_totals_reflect_the_same_search_filter_as_the_transaction_list(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        Transaction::factory()->expense()->create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'amount' => 10000,
+            'description' => 'Makan siang',
+            'transaction_date' => now(),
+        ]);
+        Transaction::factory()->expense()->create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'amount' => 20000,
+            'description' => 'Beli buku',
+            'transaction_date' => now(),
+        ]);
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/transactions?search=Makan');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data.data')
+            ->assertJsonPath('meta.total_expense', 10000);
     }
 
     public function test_unauthenticated_user_cannot_list_transactions(): void
@@ -191,7 +219,7 @@ class TransactionApiTest extends TestCase
         $transaction->refresh();
         $wallet->refresh();
         $this->assertEquals('Catatan diperbarui', $transaction->description);
-        $this->assertEquals('expense', $transaction->type);
+        $this->assertEquals(TransactionType::Expense, $transaction->type);
         $this->assertEquals(50000, $transaction->amount);
         $this->assertEquals(-50000, $wallet->balance);
     }

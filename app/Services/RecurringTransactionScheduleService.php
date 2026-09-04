@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\RecurringFrequency;
 use App\Models\RecurringTransaction;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -9,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class RecurringTransactionScheduleService
 {
+    public function __construct(
+        private WalletBalanceService $walletBalance
+    ) {}
+
     public function shouldExecuteToday(RecurringTransaction $recurring): bool
     {
         $today = Carbon::today();
@@ -22,11 +27,10 @@ class RecurringTransactionScheduleService
         }
 
         return match ($recurring->frequency) {
-            'daily' => $this->shouldExecuteDaily($today, $lastExecuted, $config),
-            'weekly' => $this->shouldExecuteWeekly($today, $config),
-            'monthly' => $this->shouldExecuteMonthly($today, $config, Carbon::parse($recurring->start_date)),
-            'yearly' => $this->shouldExecuteYearly($today, $config),
-            default => false,
+            RecurringFrequency::Daily => $this->shouldExecuteDaily($today, $lastExecuted, $config),
+            RecurringFrequency::Weekly => $this->shouldExecuteWeekly($today, $config),
+            RecurringFrequency::Monthly => $this->shouldExecuteMonthly($today, $config, Carbon::parse($recurring->start_date)),
+            RecurringFrequency::Yearly => $this->shouldExecuteYearly($today, $config),
         };
     }
 
@@ -125,12 +129,7 @@ class RecurringTransactionScheduleService
                 'transaction_date' => now()->toDateString(),
             ]);
 
-            $wallet = $recurring->wallet;
-            if ($recurring->type === 'income') {
-                $wallet->increment('balance', $recurring->amount);
-            } else {
-                $wallet->decrement('balance', $recurring->amount);
-            }
+            $this->walletBalance->recordTransactionEffect($recurring->wallet, $recurring->type, $recurring->amount);
 
             $recurring->update(['last_executed_at' => now()]);
 

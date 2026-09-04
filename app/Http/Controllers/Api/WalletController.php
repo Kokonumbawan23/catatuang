@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class WalletApiController extends Controller
+class WalletController extends Controller
 {
     public function __construct(
         private ActivityLogger $logger

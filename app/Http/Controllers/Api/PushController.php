@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PushApiController extends Controller
+class PushController extends Controller
 {
     public function __construct(
         private PushNotificationService $pushService

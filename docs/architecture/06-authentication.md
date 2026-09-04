@@ -98,7 +98,7 @@ class User extends Authenticatable
 ### API Auth Controller
 
 ```php
-class AuthApiController extends Controller
+class AuthController extends Controller
 {
     public function login(LoginRequest $request): JsonResponse
     {
@@ -135,10 +135,10 @@ class AuthApiController extends Controller
 ```php
 // routes/api.php
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthApiController::class, 'login']);
-    Route::post('/register', [AuthApiController::class, 'register']);
-    Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:sanctum');
-    Route::get('/me', [AuthApiController::class, 'me'])->middleware('auth:sanctum');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 });
 ```
 
@@ -202,7 +202,7 @@ class LoginRequest extends FormRequest
 
 - `app/Models/User.php`
 - `app/Http/Controllers/Auth/*.php`
-- `app/Http/Controllers/Api/AuthApiController.php`
+- `app/Http/Controllers/Api/AuthController.php`
 - `routes/auth.php`
 - `routes/api.php`
 - `resources/views/auth/*.blade.php`
