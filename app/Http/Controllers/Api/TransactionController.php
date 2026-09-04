@@ -127,8 +127,9 @@ class TransactionController extends Controller
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
         $walletId = $request->input('wallet_id');
+        $type = TransactionType::tryFrom((string) $request->input('type'));
 
-        $transactions = $this->transactionExport->fetchForExport(Auth::user(), $month, $year, $walletId);
+        $transactions = $this->transactionExport->fetchForExport(Auth::user(), $month, $year, $walletId, $type);
         $csvRows = $this->transactionExport->toCsvRows($transactions);
         $filename = $this->transactionExport->csvFilename($year, $month);
 

@@ -105,5 +105,7 @@ class ExportTest extends TestCase
 
         $content = $response->streamedContent();
         $this->assertStringContainsString('Pemasukan', $content);
+        $this->assertStringNotContainsString('Pengeluaran', $content);
+        $this->assertSame(3, substr_count($content, 'Pemasukan'));
     }
 }

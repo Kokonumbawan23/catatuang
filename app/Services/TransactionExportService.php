@@ -10,7 +10,7 @@ class TransactionExportService
 {
     private const CSV_HEADER_ROW = ['Tanggal', 'Dompet', 'Kategori', 'Tipe', 'Nominal', 'Keterangan'];
 
-    public function fetchForExport(User $user, int $month, int $year, ?int $walletId): Collection
+    public function fetchForExport(User $user, int $month, int $year, ?int $walletId, ?TransactionType $type = null): Collection
     {
         $query = $user->transactions()
             ->with(['category', 'wallet'])
@@ -19,6 +19,10 @@ class TransactionExportService
 
         if ($walletId) {
             $query->where('wallet_id', $walletId);
+        }
+
+        if ($type) {
+            $query->where('type', $type);
         }
 
         return $query->orderBy('transaction_date', 'desc')->get();
