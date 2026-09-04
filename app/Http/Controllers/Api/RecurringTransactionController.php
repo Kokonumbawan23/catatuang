@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 
 class RecurringTransactionController extends Controller
 {
+    private const PER_PAGE = 20;
+
     public function __construct(
         private ActivityLogger $logger,
         private WalletOwnershipService $walletOwnership
@@ -34,7 +36,7 @@ class RecurringTransactionController extends Controller
         $recurrings = RecurringTransaction::with(['wallet', 'category'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(self::PER_PAGE);
 
         $categories = Category::cached();
         $wallets = $user->wallets()->orderBy('name')->get();

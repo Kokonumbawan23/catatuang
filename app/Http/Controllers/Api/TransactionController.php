@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
+    private const PER_PAGE = 20;
+
     public function __construct(
         private TransactionService $transactions,
         private TransactionExportService $transactionExport
@@ -58,7 +60,7 @@ class TransactionController extends Controller
 
         $transactions = $query->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(self::PER_PAGE);
 
         $categories = Category::cached();
 

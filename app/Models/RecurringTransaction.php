@@ -68,8 +68,8 @@ class RecurringTransaction extends Model
         $today = now()->toDateString();
 
         return $query->where('start_date', '<=', $today)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')
+            ->where(function ($endDateQuery) use ($today) {
+                $endDateQuery->whereNull('end_date')
                     ->orWhere('end_date', '>=', $today);
             });
     }

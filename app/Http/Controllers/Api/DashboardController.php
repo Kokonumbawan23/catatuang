@@ -51,14 +51,14 @@ class DashboardController extends Controller
             ->where('transactions.type', TransactionType::Expense->value)
             ->whereMonth('transactions.transaction_date', $month)
             ->whereYear('transactions.transaction_date', $year)
-            ->when($activeWallet, fn ($q) => $q->where('transactions.wallet_id', $activeWallet->id))
+            ->when($activeWallet, fn ($categoryQuery) => $categoryQuery->where('transactions.wallet_id', $activeWallet->id))
             ->selectRaw('transactions.category_id, categories.name, categories.color, SUM(transactions.amount) as total')
             ->groupBy('transactions.category_id', 'categories.name', 'categories.color')
             ->get()
-            ->map(fn ($item) => [
-                'name' => $item->name ?? 'Tanpa Kategori',
-                'color' => $item->color ?? '#95A5A6',
-                'total' => (float) $item->total,
+            ->map(fn ($categoryBreakdown) => [
+                'name' => $categoryBreakdown->name ?? 'Tanpa Kategori',
+                'color' => $categoryBreakdown->color ?? '#95A5A6',
+                'total' => (float) $categoryBreakdown->total,
             ]);
 
         return response()->json([

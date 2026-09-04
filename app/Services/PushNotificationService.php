@@ -11,6 +11,14 @@ use Minishlink\WebPush\WebPush;
 
 class PushNotificationService
 {
+    private const NOTIFY_THRESHOLD_PERCENT = 20;
+
+    private const WARNING_THRESHOLD_PERCENT = 10;
+
+    private const CRITICAL_THRESHOLD_PERCENT = 0;
+
+    private const NOTIFICATION_ICON = '/icons/icon-192.png';
+
     private ?WebPush $webPush = null;
 
     public function __construct()
@@ -61,8 +69,7 @@ class PushNotificationService
         $balance = (float) $wallet->balance;
         $pct = ($balance - $threshold) / $threshold * 100;
 
-        // di atas threshold + 20% → gak alert
-        if ($pct > 20) {
+        if ($pct > self::NOTIFY_THRESHOLD_PERCENT) {
             return 0;
         }
 
@@ -75,11 +82,11 @@ class PushNotificationService
         $formattedBalance = 'Rp '.number_format($balance, 0, ',', '.');
         $formattedLimit = 'Rp '.number_format($threshold, 0, ',', '.');
 
-        if ($pct <= 0) {
+        if ($pct <= self::CRITICAL_THRESHOLD_PERCENT) {
             $title = '🚨 Saldo Kritis';
             $body = "Dompet \"{$wallet->name}\" sudah di bawah batas! ({$formattedBalance} / {$formattedLimit})";
             $tag = 'balance-limit-critical-'.$wallet->id;
-        } elseif ($pct <= 10) {
+        } elseif ($pct <= self::WARNING_THRESHOLD_PERCENT) {
             $title = '⚠️ Saldo Hampir Habis';
             $body = "Dompet \"{$wallet->name}\" tinggal {$formattedBalance} — mendekati limit ({$formattedLimit})";
             $tag = 'balance-limit-warning-'.$wallet->id;
@@ -92,8 +99,8 @@ class PushNotificationService
         $notification = [
             'title' => $title,
             'body' => $body,
-            'icon' => '/icons/icon-192.png',
-            'badge' => '/icons/icon-192.png',
+            'icon' => self::NOTIFICATION_ICON,
+            'badge' => self::NOTIFICATION_ICON,
             'tag' => $tag,
             'data' => [
                 'type' => 'balance_limit',
@@ -115,8 +122,8 @@ class PushNotificationService
         $payload = [
             'title' => '🔔 Test Notification',
             'body' => 'Push notification CatatUang berfungsi!',
-            'icon' => '/icons/icon-192.png',
-            'badge' => '/icons/icon-192.png',
+            'icon' => self::NOTIFICATION_ICON,
+            'badge' => self::NOTIFICATION_ICON,
             'tag' => 'test-notification',
             'data' => ['type' => 'test'],
         ];
