@@ -87,12 +87,6 @@ class TransactionApiController extends Controller
 
         $wallet = Wallet::findOrFail($validated['wallet_id']);
 
-        if ($wallet->user_id !== $user->id) {
-            $this->logger->unauthorizedAccess($user->id, 'wallet:'.$validated['wallet_id'], 'create_transaction');
-
-            return response()->json(['message' => 'Dompet tidak valid.'], 422);
-        }
-
         DB::transaction(function () use ($validated, $user, $wallet) {
             $validated['user_id'] = $user->id;
             $transaction = Transaction::create($validated);
@@ -138,14 +132,11 @@ class TransactionApiController extends Controller
 
         $user = Auth::user();
         $validated = $request->validated();
+        $validated['wallet_id'] = $validated['wallet_id'] ?? $transaction->wallet_id;
+        $validated['type'] = $validated['type'] ?? $transaction->type;
+        $validated['amount'] = $validated['amount'] ?? $transaction->amount;
 
         $wallet = Wallet::findOrFail($validated['wallet_id']);
-
-        if ($wallet->user_id !== $user->id) {
-            $this->logger->unauthorizedAccess($user->id, 'transaction:'.$transaction->id, 'update');
-
-            return response()->json(['message' => 'Dompet tidak valid.'], 422);
-        }
 
         $oldWallet = $transaction->wallet;
         $walletSwitched = $oldWallet->id !== $wallet->id;

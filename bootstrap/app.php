@@ -43,12 +43,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     return null;
                 }
 
-                if ($e instanceof AuthenticationException) {
-                    $logger->serverError($e, ['type' => 'authentication']);
-
-                    return null;
-                }
-
                 if ($e instanceof AuthorizationException) {
                     $logger->unauthorizedAccess(
                         auth()->id() ?? 0,
@@ -56,6 +50,10 @@ return Application::configure(basePath: dirname(__DIR__))
                         $request->method()
                     );
 
+                    return null;
+                }
+
+                if ($e instanceof AuthenticationException) {
                     return null;
                 }
 

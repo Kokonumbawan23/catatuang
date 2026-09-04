@@ -24,7 +24,7 @@ class RecurringTransactionScheduleService
         return match ($recurring->frequency) {
             'daily' => $this->shouldExecuteDaily($today, $lastExecuted, $config),
             'weekly' => $this->shouldExecuteWeekly($today, $config),
-            'monthly' => $this->shouldExecuteMonthly($today, $config),
+            'monthly' => $this->shouldExecuteMonthly($today, $config, Carbon::parse($recurring->start_date)),
             'yearly' => $this->shouldExecuteYearly($today, $config),
             default => false,
         };
@@ -51,7 +51,7 @@ class RecurringTransactionScheduleService
         return in_array($today->dayOfWeek, $dayOfWeek);
     }
 
-    protected function shouldExecuteMonthly(Carbon $today, array $config): bool
+    protected function shouldExecuteMonthly(Carbon $today, array $config, Carbon $startDate): bool
     {
         $dayOfMonth = (int) ($config['day_of_month'] ?? 0);
         $intervalMonths = (int) ($config['interval_months'] ?? 1);
@@ -68,7 +68,7 @@ class RecurringTransactionScheduleService
             return true;
         }
 
-        $monthsSinceStart = Carbon::parse($dayOfMonth.'-'.$today->format('d'))->diffInMonths();
+        $monthsSinceStart = $startDate->startOfDay()->diffInMonths($today->copy()->startOfDay());
 
         return $monthsSinceStart % $intervalMonths === 0;
     }

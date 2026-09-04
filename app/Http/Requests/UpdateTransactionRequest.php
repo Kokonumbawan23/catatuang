@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Wallet;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,6 +21,12 @@ class UpdateTransactionRequest extends FormRequest
             'wallet_id' => [
                 'sometimes',
                 'exists:wallets,id',
+                function ($attribute, $value, $fail) {
+                    $wallet = Wallet::find($value);
+                    if (! $wallet || $wallet->user_id !== $this->user()->id) {
+                        $fail('Dompet tidak valid.');
+                    }
+                },
             ],
             'type' => ['sometimes', Rule::in(['expense', 'income'])],
             'amount' => ['sometimes', 'numeric', 'min:1', 'max:99999999999999'],

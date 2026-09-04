@@ -109,9 +109,33 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-            ->assertJson([
-                'message' => 'Dompet tidak valid.',
-            ]);
+            ->assertJsonValidationErrors(['wallet_id']);
+    }
+
+    public function test_user_can_view_own_transaction(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id]);
+        $transaction = Transaction::factory()->create(['user_id' => $user->id, 'wallet_id' => $wallet->id]);
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/transactions/'.$transaction->id);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $transaction->id);
+    }
+
+    public function test_user_cannot_view_other_users_transaction(): void
+    {
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+        $walletB = Wallet::factory()->create(['user_id' => $userB->id]);
+        $transactionB = Transaction::factory()->create(['user_id' => $userB->id, 'wallet_id' => $walletB->id]);
+        Sanctum::actingAs($userA);
+
+        $response = $this->getJson('/api/transactions/'.$transactionB->id);
+
+        $response->assertStatus(403);
     }
 
     public function test_user_can_update_own_transaction(): void
@@ -144,6 +168,32 @@ class TransactionApiTest extends TestCase
 
         $wallet->refresh();
         $this->assertEquals(75000, $wallet->balance);
+    }
+
+    public function test_user_can_partially_update_transaction_description_only(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::factory()->create(['user_id' => $user->id, 'balance' => -50000]);
+        $transaction = Transaction::factory()->create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'type' => 'expense',
+            'amount' => 50000,
+        ]);
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/transactions/'.$transaction->id, [
+            'description' => 'Catatan diperbarui',
+        ]);
+
+        $response->assertStatus(200);
+
+        $transaction->refresh();
+        $wallet->refresh();
+        $this->assertEquals('Catatan diperbarui', $transaction->description);
+        $this->assertEquals('expense', $transaction->type);
+        $this->assertEquals(50000, $transaction->amount);
+        $this->assertEquals(-50000, $wallet->balance);
     }
 
     public function test_user_cannot_update_other_users_transaction(): void

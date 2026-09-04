@@ -435,7 +435,7 @@ const createTransaction = async () => {
         form.transaction_date = new Date().toISOString().split('T')[0];
         fetchTransactions();
     } catch (error) {
-        formError.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {}).flat().join(', ') || 'Gagal menyimpan transaksi.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal menyimpan transaksi.';
     } finally {
         formLoading.value = false;
     }
@@ -449,7 +449,7 @@ const updateTransaction = async () => {
         closeModal();
         fetchTransactions();
     } catch (error) {
-        formError.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {}).flat().join(', ') || 'Gagal mengupdate transaksi.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal mengupdate transaksi.';
     } finally {
         formLoading.value = false;
     }
