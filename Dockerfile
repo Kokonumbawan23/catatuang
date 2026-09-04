@@ -44,4 +44,4 @@ COPY --from=frontend /app/public/build ./public/build
 COPY --from=frontend /app/public/sw.js ./public/sw.js
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=$PORT"]
+CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
