@@ -94,7 +94,7 @@ const handleLogin = async () => {
         await subscribePushOnLogin();
         router.push({ name: 'dashboard' });
     } catch (e) {
-        error.value = e.response?.data?.message || 'Email atau kata sandi salah.';
+        error.value = Object.values(e.response?.data?.errors || {}).flat().join(', ') || e.response?.data?.message || 'Email atau kata sandi salah.';
     } finally {
         loading.value = false;
     }

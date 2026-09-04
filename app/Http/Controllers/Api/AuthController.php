@@ -28,9 +28,9 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            $this->logger->authFailure($request->email, 'The provided credentials are incorrect.');
+            $this->logger->authFailure($request->email, 'invalid_credentials');
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => ['Email atau kata sandi salah.'],
             ]);
         }
 

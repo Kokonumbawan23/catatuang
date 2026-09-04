@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\TransactionType;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,6 +16,7 @@ class CategoryFactory extends Factory
             'name' => fake()->word(),
             'icon' => fake()->emoji(),
             'color' => fake()->hexColor(),
+            'type' => TransactionType::Expense,
         ];
     }
 
@@ -22,6 +24,7 @@ class CategoryFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'name' => 'Expense Category',
+            'type' => TransactionType::Expense,
         ]);
     }
 
@@ -29,6 +32,7 @@ class CategoryFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'name' => 'Income Category',
+            'type' => TransactionType::Income,
         ]);
     }
 }

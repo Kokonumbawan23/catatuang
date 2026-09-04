@@ -266,7 +266,7 @@ const createWallet = async () => {
         closeModal();
         fetchWallets();
     } catch (error) {
-        formError.value = error.response?.data?.message || 'Gagal membuat dompet.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal membuat dompet.';
     } finally {
         formLoading.value = false;
     }
@@ -280,7 +280,7 @@ const updateWallet = async () => {
         closeModal();
         fetchWallets();
     } catch (error) {
-        formError.value = error.response?.data?.message || 'Gagal mengupdate dompet.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal mengupdate dompet.';
     } finally {
         formLoading.value = false;
     }
@@ -294,7 +294,7 @@ const deleteWallet = async () => {
         closeModal();
         fetchWallets();
     } catch (error) {
-        alert(error.response?.data?.message || 'Gagal menghapus dompet.');
+        alert(Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal menghapus dompet.');
     } finally {
         formLoading.value = false;
     }

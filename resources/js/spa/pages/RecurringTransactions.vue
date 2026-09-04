@@ -510,7 +510,7 @@ const createRecurring = async () => {
         cancelEdit();
         fetchRecurrings();
     } catch (error) {
-        formError.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {}).flat().join(', ') || 'Gagal menyimpan.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal menyimpan.';
     } finally {
         formLoading.value = false;
     }
@@ -527,7 +527,7 @@ const updateRecurring = async () => {
         cancelEdit();
         fetchRecurrings();
     } catch (error) {
-        formError.value = error.response?.data?.message || Object.values(error.response?.data?.errors || {}).flat().join(', ') || 'Gagal memperbarui.';
+        formError.value = Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal memperbarui.';
     } finally {
         formLoading.value = false;
     }
@@ -541,7 +541,7 @@ const deleteRecurring = async () => {
         closeModal();
         fetchRecurrings();
     } catch (error) {
-        alert(error.response?.data?.message || 'Gagal menghapus.');
+        alert(Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal menghapus.');
     } finally {
         formLoading.value = false;
     }
