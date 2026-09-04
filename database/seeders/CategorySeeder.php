@@ -29,12 +29,11 @@ class CategorySeeder extends Seeder
             ['name' => 'Lainnya', 'icon' => '📦', 'color' => '#6B7280', 'type' => 'income'],
         ];
 
-        foreach ($expenseCategories as $category) {
-            Category::create($category);
-        }
-
-        foreach ($incomeCategories as $category) {
-            Category::create($category);
+        foreach ([...$expenseCategories, ...$incomeCategories] as $category) {
+            Category::updateOrCreate(
+                ['name' => $category['name'], 'type' => $category['type']],
+                $category
+            );
         }
     }
 }

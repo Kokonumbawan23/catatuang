@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+vendor
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+public/build
+public/sw.js
+public/workbox-*.js
+.env
+.env.*
+!.env.example
+tests
+.playwright-mcp

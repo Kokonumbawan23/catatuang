@@ -8,8 +8,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-COPY vite.config.js tsconfig.json ./
+COPY vite.config.js postcss.config.js tailwind.config.js ./
+COPY resources/css ./resources/css
 COPY resources/js ./resources/js
+COPY resources/views ./resources/views
 RUN npm run build
 
 
