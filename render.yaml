@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: catatuang
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: APP_NAME
+        value: Catatuang
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false # generate locally: php artisan key:generate --show
+      - key: APP_URL
+        sync: false # fill in after first deploy, e.g. https://catatuang.onrender.com
+
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false # Neon connection string, e.g. postgresql://user:pass@host/db
+      - key: DB_SSLMODE
+        value: require
+
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: error
+
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        value: "mailto:admin@catatuang.app"
