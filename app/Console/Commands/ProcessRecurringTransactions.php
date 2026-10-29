@@ -17,7 +17,7 @@ class ProcessRecurringTransactions extends Command
 
         $count = $service->processAll();
 
-        $this->info("Done. Created {$count} transaction(s).");
+        $this->info("Done. Processed {$count} recurring transaction(s).");
 
         return Command::SUCCESS;
     }

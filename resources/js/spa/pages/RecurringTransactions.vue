@@ -19,6 +19,49 @@
                 </div>
             </div>
 
+            <div v-if="pendingOccurrences.length > 0" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-amber-300/70 dark:border-amber-700/60 overflow-hidden">
+                <div class="p-5 border-b border-amber-100 dark:border-amber-900/40 bg-amber-50/70 dark:bg-amber-900/20">
+                    <h3 class="font-bold text-sm text-amber-800 dark:text-amber-300 uppercase tracking-wider">Menunggu Konfirmasi ({{ pendingOccurrences.length }})</h3>
+                    <p class="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">Transaksi baru dicatat setelah kamu konfirmasi. Sesuaikan nominal jika berbeda.</p>
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-slate-700">
+                    <div v-for="occurrence in pendingOccurrences" :key="occurrence.id" class="p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ occurrence.recurring_transaction.title }}</p>
+                            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                                {{ occurrence.recurring_transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                                · {{ occurrence.recurring_transaction.wallet?.name }}
+                                · Jatuh tempo {{ formatDate(occurrence.due_date) }}
+                            </p>
+                        </div>
+                        <input
+                            v-model="occurrence.amountDisplay"
+                            @input="occurrence.amount = parseInt(occurrence.amountDisplay.replace(/[^\d]/g, '') || '0')"
+                            type="text"
+                            inputmode="numeric"
+                            class="sm:w-40 rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3"
+                            placeholder="Rp 0"
+                        />
+                        <div class="flex gap-2">
+                            <button
+                                @click="skipOccurrence(occurrence)"
+                                :disabled="occurrence.processing"
+                                class="flex-1 sm:flex-none px-3 py-2 text-xs font-semibold rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 disabled:opacity-50"
+                            >
+                                Lewati
+                            </button>
+                            <button
+                                @click="confirmOccurrence(occurrence)"
+                                :disabled="occurrence.processing"
+                                class="flex-1 sm:flex-none px-3 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
+                            >
+                                {{ occurrence.recurring_transaction.type === 'income' ? 'Sudah Diterima' : 'Sudah Dibayar' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700 space-y-4">
@@ -220,6 +263,19 @@
                             <label for="is_active" class="text-sm text-gray-700 dark:text-slate-300 cursor-pointer">Aktif sekarang</label>
                         </div>
 
+                        <div class="flex items-start gap-3">
+                            <input
+                                v-model="form.requires_confirmation"
+                                type="checkbox"
+                                id="requires_confirmation"
+                                class="mt-0.5 rounded border-gray-300 dark:border-slate-500 text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <label for="requires_confirmation" class="text-sm text-gray-700 dark:text-slate-300 cursor-pointer">
+                                Minta konfirmasi sebelum dicatat
+                                <span class="block text-xs text-gray-400 dark:text-slate-500">Jika tidak dicentang, transaksi langsung dicatat otomatis saat jatuh tempo.</span>
+                            </label>
+                        </div>
+
                         <div v-if="formError" class="p-3 bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg">
                             <p class="text-xs text-red-700 dark:text-red-300">{{ formError }}</p>
                         </div>
@@ -271,6 +327,9 @@
                                                 :class="item.is_active ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400'"
                                             >
                                                 {{ item.is_active ? 'Aktif' : 'Nonaktif' }}
+                                            </span>
+                                            <span v-if="!item.requires_confirmation" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">
+                                                Otomatis
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-slate-400">
@@ -391,6 +450,7 @@ import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 
 const recurrings = ref([]);
+const pendingOccurrences = ref([]);
 const wallets = ref([]);
 const categories = ref([]);
 const pagination = ref(null);
@@ -433,6 +493,7 @@ const form = reactive({
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
     is_active: true,
+    requires_confirmation: true,
 });
 
 const fetchRecurrings = async (page = 1) => {
@@ -447,6 +508,12 @@ const fetchRecurrings = async (page = 1) => {
         meta.value = response.data.meta;
         wallets.value = response.data.meta.wallets;
         categories.value = response.data.meta.categories;
+        pendingOccurrences.value = (response.data.meta.pending_occurrences || []).map((occurrence) => ({
+            ...occurrence,
+            amount: Number(occurrence.recurring_transaction.amount),
+            amountDisplay: 'Rp ' + Number(occurrence.recurring_transaction.amount).toLocaleString('id-ID'),
+            processing: false,
+        }));
         if (wallets.value.length > 0 && !form.wallet_id) {
             form.wallet_id = wallets.value[0].id;
         }
@@ -470,6 +537,7 @@ const editRecurring = (item) => {
     form.start_date = item.start_date ? item.start_date.split('T')[0] : '';
     form.end_date = item.end_date ? item.end_date.split('T')[0] : '';
     form.is_active = item.is_active;
+    form.requires_confirmation = item.requires_confirmation;
     formError.value = '';
 };
 
@@ -486,6 +554,7 @@ const cancelEdit = () => {
     form.start_date = new Date().toISOString().split('T')[0];
     form.end_date = '';
     form.is_active = true;
+    form.requires_confirmation = true;
     formError.value = '';
 };
 
@@ -555,6 +624,21 @@ const toggleActive = async (item) => {
         console.error('Gagal toggle:', error);
     }
 };
+
+const processOccurrence = async (occurrence, action, payload = {}) => {
+    occurrence.processing = true;
+    try {
+        await axios.post(`/api/recurring-occurrences/${occurrence.id}/${action}`, payload);
+        fetchRecurrings(pagination.value?.current_page || 1);
+    } catch (error) {
+        alert(Object.values(error.response?.data?.errors || {}).flat().join(', ') || error.response?.data?.message || 'Gagal memproses.');
+        occurrence.processing = false;
+    }
+};
+
+const confirmOccurrence = (occurrence) => processOccurrence(occurrence, 'confirm', { amount: occurrence.amount });
+
+const skipOccurrence = (occurrence) => processOccurrence(occurrence, 'skip');
 
 const changePage = (page) => {
     if (page >= 1 && pagination.value && page <= pagination.value.last_page) {

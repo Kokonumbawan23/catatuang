@@ -106,6 +106,22 @@
           "Blade template parity: no Alpine.js x-show, proper Vue transitions for modals"
         ],
         "evidence": "resources/js/spa/ - App.vue, router.js, stores/auth.js; pages/ - Login.vue (84 lines), Register.vue (115 lines), Dashboard.vue (131 lines), Wallets.vue (294 lines), Transactions.vue (446 lines)"
+      },
+      {
+        "id": "FEAT-009",
+        "name": "Recurring Payment Confirmation",
+        "status": "completed",
+        "acceptance_criteria": [
+          "Recurring dengan requires_confirmation=true (default untuk recurring baru) membuat recurring_occurrence berstatus pending saat jatuh tempo, bukan transaksi.",
+          "Saldo wallet tidak berubah sampai user mengonfirmasi.",
+          "Push notification dikirim saat occurrence dibuat dan membuka halaman /recurring.",
+          "User dapat mengonfirmasi (dengan nominal aktual opsional) atau melewati occurrence dari halaman Recurring.",
+          "Konfirmasi membuat transaksi bertanggal due_date dan memperbarui saldo; konfirmasi ganda ditolak (422).",
+          "Policy memastikan user hanya bisa memproses occurrence miliknya.",
+          "Dashboard menampilkan jumlah occurrence pending.",
+          "Scheduler berjalan setiap hari pukul 08:00 Asia/Jakarta."
+        ],
+        "evidence": "database/migrations/2026_10_29_000000_create_recurring_occurrences_table.php; app/Models/RecurringOccurrence.php; app/Services/RecurringOccurrenceService.php; app/Http/Controllers/Api/RecurringOccurrenceController.php; app/Policies/RecurringOccurrencePolicy.php; app/Jobs/SendRecurringConfirmationReminder.php; resources/js/spa/pages/RecurringTransactions.vue; tests/Feature/Api/RecurringOccurrenceApiTest.php (9 tests - all passing)"
       }
     ]
   }

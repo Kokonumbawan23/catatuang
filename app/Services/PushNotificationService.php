@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\BalanceAlertLevel;
+use App\Enums\TransactionType;
 use App\Models\PushSubscription;
+use App\Models\RecurringOccurrence;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Log;
@@ -149,6 +151,36 @@ class PushNotificationService
                 'percentage' => round($pct, 1),
             ],
         ];
+    }
+
+    public function sendRecurringConfirmationReminder(RecurringOccurrence $occurrence): int
+    {
+        $recurring = $occurrence->recurringTransaction;
+        $subscriptions = PushSubscription::where('user_id', $recurring->user_id)->get();
+
+        if ($subscriptions->isEmpty()) {
+            return 0;
+        }
+
+        $formattedAmount = 'Rp '.number_format((float) $recurring->amount, 0, ',', '.');
+
+        $body = $recurring->type === TransactionType::Income
+            ? "\"{$recurring->title}\" ({$formattedAmount}) dijadwalkan masuk hari ini. Sudah diterima?"
+            : "\"{$recurring->title}\" ({$formattedAmount}) jatuh tempo hari ini. Sudah dibayar?";
+
+        return $this->sendNotification($subscriptions, [
+            'title' => '🧾 Konfirmasi Transaksi Berulang',
+            'body' => $body,
+            'icon' => self::NOTIFICATION_ICON,
+            'badge' => self::NOTIFICATION_ICON,
+            'tag' => 'recurring-occurrence-'.$occurrence->id,
+            'data' => [
+                'type' => 'recurring_confirmation',
+                'occurrence_id' => $occurrence->id,
+                'urlToOpen' => '/spa/recurring',
+                'path' => '/recurring',
+            ],
+        ]);
     }
 
     public function sendTestPush(User $user): int

@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\RecurringTransaction;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Services\RecurringTransactionScheduleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -283,5 +284,19 @@ class RecurringTransactionApiTest extends TestCase
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data.data'));
         $this->assertEquals('User A Recurring', $response->json('data.data.0.title'));
+    }
+
+    public function test_recurring_starting_and_ending_today_is_processed(): void
+    {
+        $recurring = RecurringTransaction::factory()->daily()->create([
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->toDateString(),
+        ]);
+
+        $this->assertTrue(RecurringTransaction::validDateRange()->whereKey($recurring->id)->exists());
+
+        app(RecurringTransactionScheduleService::class)->processAll();
+
+        $this->assertDatabaseCount('transactions', 1);
     }
 }

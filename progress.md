@@ -1,12 +1,21 @@
 # Session Progress Log: CatatUang
 
 ## Latest Verified State
-- **Tanggal:** 2026-07-10
-- **Last Status:** ALL TESTS PASSING - 142 tests, 385 assertions
-- **Kondisi Test:** 142 tests passed, 0 failures (including 65 new API tests)
+- **Tanggal:** 2026-10-29
+- **Last Status:** ALL TESTS PASSING - 106 tests, 311 assertions
 - **Build:** `npm run build` succeeded
 - **Lint:** Laravel Pint - all passing
-- **Branch:** `spa-conversion`
+- **Branch:** `main`
+
+## Session Summary (2026-10-29) - Recurring Payment Confirmation (FEAT-009)
+- Karena aplikasi belum terhubung ke platform pembayaran, recurring kini default `requires_confirmation=true`:
+  scheduler membuat `recurring_occurrences` (pending) + push notification, transaksi baru dicatat setelah user konfirmasi.
+- API: `POST /api/recurring-occurrences/{id}/confirm` (body `amount` opsional) dan `POST /api/recurring-occurrences/{id}/skip`.
+  Pending list ada di `meta.pending_occurrences` (`GET /api/recurring-transactions`), count di `data.pending_confirmations_count` (`GET /api/dashboard`).
+- Scheduler dipindah ke 08:00 Asia/Jakarta.
+- `app.js` kini menavigasi ke `data.path` saat push notification diklik ketika tab sudah terbuka.
+- **Bug fix:** `start_date` disimpan sebagai `Y-m-d 00:00:00`, sehingga `scopeValidDateRange` (perbandingan string
+  `start_date <= 'Y-m-d'`) melewatkan recurring yang mulai hari ini. Diperbaiki dengan `whereDate`.
 
 ## Implemented Components
 1. Migration: `2026_06_23_000001_create_recurring_transactions_table.php`

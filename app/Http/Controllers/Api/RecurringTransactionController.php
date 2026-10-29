@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRecurringTransactionRequest;
 use App\Http\Requests\UpdateRecurringTransactionRequest;
 use App\Models\Category;
+use App\Models\RecurringOccurrence;
 use App\Models\RecurringTransaction;
 use App\Services\ActivityLogger;
 use App\Services\WalletOwnershipService;
@@ -41,9 +42,16 @@ class RecurringTransactionController extends Controller
         $categories = Category::cached();
         $wallets = $user->wallets()->orderBy('name')->get();
 
+        $pendingOccurrences = RecurringOccurrence::pending()
+            ->forUser($user->id)
+            ->with(['recurringTransaction.wallet', 'recurringTransaction.category'])
+            ->orderBy('due_date')
+            ->get();
+
         return response()->json([
             'data' => $recurrings,
             'meta' => [
+                'pending_occurrences' => $pendingOccurrences,
                 'categories' => $categories,
                 'wallets' => $wallets,
                 'total_active_this_month' => $totalActiveThisMonth,

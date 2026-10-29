@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\PushController;
+use App\Http\Controllers\Api\RecurringOccurrenceController;
 use App\Http\Controllers\Api\RecurringTransactionController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\WalletController;
@@ -51,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
         'destroy' => 'api.recurring-transactions.destroy',
     ]);
     Route::patch('/recurring-transactions/{recurringTransaction}/toggle', [RecurringTransactionController::class, 'toggleActive'])->name('api.recurring-transactions.toggle');
+    Route::post('/recurring-occurrences/{recurringOccurrence}/confirm', [RecurringOccurrenceController::class, 'confirm'])->name('api.recurring-occurrences.confirm');
+    Route::post('/recurring-occurrences/{recurringOccurrence}/skip', [RecurringOccurrenceController::class, 'skip'])->name('api.recurring-occurrences.skip');
     Route::get('/categories', [CategoryController::class, 'index'])->name('api.categories.index');
     Route::post('/push/subscribe', [PushController::class, 'subscribe'])->name('api.push.subscribe');
     Route::delete('/push/unsubscribe', [PushController::class, 'unsubscribe'])->name('api.push.unsubscribe');
