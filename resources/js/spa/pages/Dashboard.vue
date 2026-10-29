@@ -134,6 +134,8 @@ const fetchDashboard = async () => {
         summary.value = response.data.data.summary;
         categoryData.value = response.data.data.category_data || [];
         pendingConfirmationsCount.value = response.data.data.pending_confirmations_count || 0;
+        // Canvas baru ada di DOM setelah loading selesai (v-if="loading" di template).
+        loading.value = false;
         await nextTick();
         renderCategoryChart();
     } catch (error) {
