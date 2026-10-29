@@ -9,6 +9,17 @@
                 </div>
             </div>
 
+            <router-link
+                v-if="pendingConfirmationsCount > 0"
+                to="/recurring"
+                class="flex items-center justify-between gap-3 p-4 rounded-xl border border-amber-300/70 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition"
+            >
+                <span class="text-sm font-medium text-amber-800 dark:text-amber-300">
+                    🧾 {{ pendingConfirmationsCount }} transaksi berulang menunggu konfirmasi
+                </span>
+                <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">Konfirmasi &rarr;</span>
+            </router-link>
+
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-slate-700 text-center">
                     <div class="p-6 hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition">
@@ -110,6 +121,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 const recentTransactions = ref([]);
 const summary = ref({ total_income: 0, total_expense: 0, balance: 0 });
 const categoryData = ref([]);
+const pendingConfirmationsCount = ref(0);
 const loading = ref(false);
 const categoryChartCanvas = ref(null);
 let categoryChart = null;
@@ -121,6 +133,7 @@ const fetchDashboard = async () => {
         recentTransactions.value = response.data.data.recent_transactions;
         summary.value = response.data.data.summary;
         categoryData.value = response.data.data.category_data || [];
+        pendingConfirmationsCount.value = response.data.data.pending_confirmations_count || 0;
         await nextTick();
         renderCategoryChart();
     } catch (error) {

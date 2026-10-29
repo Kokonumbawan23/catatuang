@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
+use App\Models\RecurringOccurrence;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,7 @@ class DashboardController extends Controller
                 ],
                 'recent_transactions' => $recentTransactions,
                 'category_data' => $categoryData,
+                'pending_confirmations_count' => RecurringOccurrence::pending()->forUser($user->id)->count(),
             ],
         ]);
     }

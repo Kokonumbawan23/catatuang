@@ -58,6 +58,10 @@ export function usePWAInstall() {
 
 navigator.serviceWorker?.addEventListener('message', (event) => {
     if (event.data?.type === 'PUSH_NOTIFICATION_CLICKED') {
+        // Tab yang sudah terbuka hanya di-focus oleh SW, jadi navigasi ke halaman tujuan dilakukan di sini.
+        if (event.data.data?.path) {
+            router.push(event.data.data.path);
+        }
         window.dispatchEvent(new CustomEvent('push-notification-clicked', {
             detail: event.data.data,
         }));

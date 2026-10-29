@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Enums\RecurringFrequency;
+use App\Enums\RecurringOccurrenceStatus;
+use App\Jobs\SendRecurringConfirmationReminder;
+use App\Models\RecurringOccurrence;
 use App\Models\RecurringTransaction;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -104,7 +107,7 @@ class RecurringTransactionScheduleService
         return true;
     }
 
-    public function execute(RecurringTransaction $recurring): ?Transaction
+    public function execute(RecurringTransaction $recurring): Transaction|RecurringOccurrence|null
     {
         if (! $recurring->is_active) {
             return null;
@@ -116,6 +119,10 @@ class RecurringTransactionScheduleService
 
         if (! $this->shouldExecuteToday($recurring)) {
             return null;
+        }
+
+        if ($recurring->requires_confirmation) {
+            return $this->createPendingOccurrence($recurring);
         }
 
         return DB::transaction(function () use ($recurring) {
@@ -135,6 +142,25 @@ class RecurringTransactionScheduleService
 
             return $transaction;
         });
+    }
+
+    // Pembayaran belum tentu sudah dilakukan, jadi hanya dicatat sebagai pending sampai user konfirmasi.
+    protected function createPendingOccurrence(RecurringTransaction $recurring): RecurringOccurrence
+    {
+        $occurrence = DB::transaction(function () use ($recurring) {
+            $occurrence = $recurring->occurrences()->create([
+                'due_date' => now()->toDateString(),
+                'status' => RecurringOccurrenceStatus::Pending,
+            ]);
+
+            $recurring->update(['last_executed_at' => now()]);
+
+            return $occurrence;
+        });
+
+        SendRecurringConfirmationReminder::dispatch($occurrence);
+
+        return $occurrence;
     }
 
     public function processAll(): int

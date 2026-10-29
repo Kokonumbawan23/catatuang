@@ -7,6 +7,7 @@ use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RecurringTransaction extends Model
 {
@@ -58,6 +59,11 @@ class RecurringTransaction extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function occurrences(): HasMany
+    {
+        return $this->hasMany(RecurringOccurrence::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -67,10 +73,11 @@ class RecurringTransaction extends Model
     {
         $today = now()->toDateString();
 
-        return $query->where('start_date', '<=', $today)
+        // whereDate karena kolom tersimpan sebagai "Y-m-d 00:00:00"; perbandingan string biasa melewatkan start_date hari ini.
+        return $query->whereDate('start_date', '<=', $today)
             ->where(function ($endDateQuery) use ($today) {
                 $endDateQuery->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $today);
+                    ->orWhereDate('end_date', '>=', $today);
             });
     }
 }
