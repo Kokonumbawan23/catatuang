@@ -17,18 +17,15 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $wallets = $user->wallets()->orderBy('name')->get();
-        $walletId = $request->input('wallet_id');
-
-        $activeWallet = $walletId
-            ? $wallets->firstWhere('id', $walletId)
-            : $wallets->first();
+        // Tanpa wallet_id, ringkasan mencakup semua dompet milik user.
+        $activeWallet = $wallets->firstWhere('id', $request->input('wallet_id'));
 
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
 
         $totals = DB::table('transactions')
             ->where('user_id', $user->id)
-            ->where('wallet_id', $activeWallet?->id)
+            ->when($activeWallet, fn ($totalsQuery) => $totalsQuery->where('wallet_id', $activeWallet->id))
             ->whereMonth('transaction_date', $month)
             ->whereYear('transaction_date', $year)
             ->selectRaw(sprintf(
@@ -68,7 +65,7 @@ class DashboardController extends Controller
                 'summary' => [
                     'total_income' => $totals->total_income ?? 0,
                     'total_expense' => $totals->total_expense ?? 0,
-                    'balance' => $activeWallet?->balance ?? 0,
+                    'balance' => $activeWallet?->balance ?? $wallets->sum('balance'),
                     'month' => $month,
                     'year' => $year,
                 ],

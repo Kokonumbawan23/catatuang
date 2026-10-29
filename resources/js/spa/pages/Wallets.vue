@@ -56,8 +56,17 @@
                             <div class="mt-6">
                                 <p class="text-lg font-semibold">{{ wallet.name }}</p>
                                 <p class="text-xs opacity-75 mt-1">{{ wallet.transactions_count || 0 }} transaksi</p>
-                                <p v-if="wallet.balance_limit && wallet.balance_limit > 0" class="text-xs opacity-60 mt-1">
-                                    Batas Bawah: Rp {{ formatNumber(wallet.balance_limit) }}
+                            </div>
+                            <div v-if="wallet.balance_limit > 0" class="mt-4">
+                                <div class="flex justify-between items-baseline gap-2 text-xs">
+                                    <span class="opacity-75">Sisa saldo yang dapat digunakan</span>
+                                    <span class="font-semibold whitespace-nowrap">Rp {{ formatNumber(usableBalance(wallet)) }}</span>
+                                </div>
+                                <div class="mt-1.5 w-full h-2 bg-black/20 rounded-full overflow-hidden">
+                                    <div class="h-full bg-white rounded-full transition-all duration-500" :style="{ width: usablePercent(wallet) + '%' }"></div>
+                                </div>
+                                <p class="text-xs mt-1.5" :class="usableBalance(wallet) > 0 ? 'opacity-60' : 'font-semibold'">
+                                    {{ usableBalance(wallet) > 0 ? 'Batas bawah' : 'Saldo sudah mencapai batas bawah' }}: Rp {{ formatNumber(wallet.balance_limit) }}
                                 </p>
                             </div>
                             <div class="mt-4 pt-4 border-t border-white/20 flex justify-end gap-3">
@@ -298,6 +307,14 @@ const deleteWallet = async () => {
     } finally {
         formLoading.value = false;
     }
+};
+
+const usableBalance = (wallet) => Math.max(0, Number(wallet.balance) - Number(wallet.balance_limit));
+
+// Porsi saldo yang masih bisa dipakai sebelum menyentuh batas bawah.
+const usablePercent = (wallet) => {
+    const balance = Number(wallet.balance);
+    return balance > 0 ? Math.min(100, (usableBalance(wallet) / balance) * 100) : 0;
 };
 
 const formatNumber = (value) => {

@@ -4,8 +4,8 @@
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200/60 dark:border-slate-700 gap-4">
                 <div>
-                    <h2 class="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">Dashboard Analitik Finansial</h2>
-                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Pantau ringkasan pemasukan, pengeluaran, dan manajemen dompet Anda.</p>
+                    <h2 class="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">Riwayat Transaksi</h2>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Catat, cari, dan kelola semua pemasukan serta pengeluaran Anda.</p>
                 </div>
                 <div class="w-full sm:w-auto flex items-center space-x-3">
                     <select

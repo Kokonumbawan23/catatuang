@@ -160,6 +160,43 @@ class DashboardApiTest extends TestCase
             ->assertJsonPath('data.summary.total_expense', 100000);
     }
 
+    public function test_dashboard_summarizes_all_wallets_without_wallet_filter(): void
+    {
+        $user = User::factory()->create();
+        $wallet1 = Wallet::factory()->create(['user_id' => $user->id, 'balance' => 300000]);
+        $wallet2 = Wallet::factory()->create(['user_id' => $user->id, 'balance' => 200000]);
+        $otherWallet = Wallet::factory()->create(['balance' => 999000]);
+
+        foreach ([[$wallet1, 'income', 400000], [$wallet2, 'income', 100000], [$wallet1, 'expense', 50000], [$wallet2, 'expense', 70000]] as [$wallet, $type, $amount]) {
+            Transaction::factory()->create([
+                'user_id' => $user->id,
+                'wallet_id' => $wallet->id,
+                'type' => $type,
+                'amount' => $amount,
+                'transaction_date' => now(),
+            ]);
+        }
+
+        Transaction::factory()->create([
+            'user_id' => $otherWallet->user_id,
+            'wallet_id' => $otherWallet->id,
+            'type' => 'expense',
+            'amount' => 999000,
+            'transaction_date' => now(),
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/dashboard');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.active_wallet', null)
+            ->assertJsonPath('data.summary.total_income', 500000)
+            ->assertJsonPath('data.summary.total_expense', 120000);
+        $this->assertEquals(500000, (int) $response->json('data.summary.balance'));
+        $this->assertEquals(120000, collect($response->json('data.category_data'))->sum('total'));
+    }
+
     public function test_dashboard_filters_by_month_and_year(): void
     {
         $user = User::factory()->create();
